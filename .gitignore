@@ -103,7 +103,7 @@ celerybeat.pid
 
 # Environments
 .env
-.venv
+.venv*
 env/
 venv/
 ENV/
@@ -127,3 +127,12 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# third-party libraries
+.third_party*
+
+# Visual Studio Code
+.vscode
+
+# scikit-build cache
+_skbuild

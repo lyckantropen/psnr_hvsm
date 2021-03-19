@@ -1,0 +1,8 @@
+prune *
+graft psnr_hvsm
+include *.cfg
+include *.ini
+include *.py
+include *.txt
+include LICENSE
+include README.md

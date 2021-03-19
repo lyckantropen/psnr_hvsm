@@ -1,0 +1,4 @@
+cmake
+scikit_build@git+https://github.com/YannickJadoul/scikit-build@vs2019
+wheel
+numpy >= 1.18.0
