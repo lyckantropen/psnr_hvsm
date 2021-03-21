@@ -21,7 +21,8 @@ jobs:
           CIBW_SKIP: "*-win32"
           CIBW_BEFORE_ALL_LINUX: bash ./linux-deps.sh && pwsh ./deps.ps1
           CIBW_BEFORE_ALL_WINDOWS: pwsh ./deps.ps1
-          CIBW_MANYLINUX_X86_64_IMAGE: manylinux_2_24
+          CIBW_MANYLINUX_X86_64_IMAGE: manylinux_2_24_x86_64
+          CIBW_MANYLINUX_I686_IMAGE: manylinux_2_24_i686
           CIBW_TEST_EXTRAS: tests
           CIBW_TEST_COMMAND: "pytest {project}/tests"
 
