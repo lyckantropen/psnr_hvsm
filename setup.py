@@ -1,12 +1,16 @@
+import sys
+
 import skbuild.platform_specifics.windows
 from skbuild import setup
-import sys
 
 
 # using patched scikit-build for VS2019 courtesy of https://github.com/YannickJadoul/scikit-build
 def patched_WindowsPlatform_init(self):
     import textwrap
-    from skbuild.platform_specifics.windows import WindowsPlatform, CMakeVisualStudioCommandLineGenerator, CMakeVisualStudioIDEGenerator
+
+    from skbuild.platform_specifics.windows import (
+        CMakeVisualStudioCommandLineGenerator, CMakeVisualStudioIDEGenerator,
+        WindowsPlatform)
 
     super(WindowsPlatform, self).__init__()
 

@@ -5,6 +5,10 @@ find_package(xtensor-python REQUIRED)
 find_package(FFTW3 COMPONENTS DOUBLE_LIB REQUIRED)
 
 set(PSNR_HVSM_FILES
+    dct.cpp
+    mse_hvs.cpp
+    mse_hvsm.cpp
+    psnr_hvsm.cpp
     psnr_hvsm_pybind11.cpp
 )
 

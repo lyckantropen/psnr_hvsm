@@ -9,13 +9,13 @@ from psnr_hvsm import dct, dct2
 def test_dct_produces_same_result_on_1d_ramp():
     x = np.arange(16, dtype=float)
 
-    assert_array_almost_equal(dct(x), sp_dct(x, type=2))
+    assert_array_almost_equal(dct(x), sp_dct(x, type=2, norm='ortho'))
 
 
 def test_dct2_produces_same_result_on_2d_ramp():
     x = np.arange(64, dtype=float).reshape(8, 8)
 
-    assert_array_almost_equal(dct2(x), sp_dctn(x, type=2))
+    assert_array_almost_equal(dct2(x), sp_dctn(x, type=2, norm='ortho'))
 
 
 def test_dct_produces_same_result_on_1d_assorted_values():
@@ -24,7 +24,7 @@ def test_dct_produces_same_result_on_1d_assorted_values():
                   1.89964033, -0.21133256, 1.45662116, -1.9070239, 1.03049493,
                   1.81084522])
 
-    assert_array_almost_equal(dct(x), sp_dct(x, type=2))
+    assert_array_almost_equal(dct(x), sp_dct(x, type=2, norm='ortho'))
 
 
 def test_dct2_produces_same_result_on_2d_assorted_values():
@@ -45,4 +45,4 @@ def test_dct2_produces_same_result_on_2d_assorted_values():
                   [-2.44960754, 4.17607207, -1.38446204, 1.34689231, -0.48578666,
                    -3.4962453, 1.8764909, -5.84631864]])
 
-    assert_array_almost_equal(dct2(x), sp_dctn(x, type=2))
+    assert_array_almost_equal(dct2(x), sp_dctn(x, type=2, norm='ortho'))

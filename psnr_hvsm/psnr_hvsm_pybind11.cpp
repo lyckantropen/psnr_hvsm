@@ -1,57 +1,42 @@
-#include <xtensor/xtensor.hpp>
 #include <pybind11/pybind11.h>
-
-#include <xtensor-fftw/basic.hpp>  // rfft, irfft
-#include <xtensor-fftw/helper.hpp> // rfftscale
-#include <xtensor/xarray.hpp>
-#include <xtensor/xbuilder.hpp> // xt::arange
-#include <xtensor/xmath.hpp>    // xt::sin, cos
-#include <complex>
-#include <xtensor/xio.hpp>
-
-#include <xtensor/xview.hpp>
-#include <xtensor/xfunctor_view.hpp>
-
 #define FORCE_IMPORT_ARRAY
 #include <xtensor-python/pytensor.hpp>
 
-using xt::placeholders::_;
-
-xt::xtensor<double, 1> dct(const xt::xtensor<double, 1> &x)
-{
-  xt::xarray<double> f = xt::zeros<double>({x.shape(0) * 4});
-  auto a = xt::view(x, xt::range(_, _, -1));
-  auto b = xt::view(x, xt::all());
-  auto c = xt::concatenate(std::make_tuple(a, b));
-  xt::view(f, xt::range(1, _, 2)) = c;
-  auto fft = xt::real(xt::fftw::rfft(f));
-  xt::view(fft, xt::range(1, _, 2)) *= -1.0;
-  return xt::view(fft, xt::range(_, x.shape(0)));
-}
-
-xt::xtensor<double, 2> dct2(const xt::xtensor<double, 2> &x)
-{
-  xt::xtensor<double, 2> y = x;
-  for (size_t j = 0; j < x.shape(1); ++j)
-  {
-    xt::row(y, j) = dct(xt::row(y, j));
-  }
-  for (size_t i = 0; i < x.shape(0); ++i)
-  {
-    xt::col(y, i) = dct(xt::col(y, i));
-  }
-  return y;
-}
+#include "dct.h"
+#include "mse_hvs.h"
+#include "mse_hvsm.h"
+#include "psnr_hvsm.h"
 
 PYBIND11_MODULE(_psnr_hvsm, m)
 {
   xt::import_numpy();
 
-  m.doc() = "PSNR-HVS-M";
+  m.doc() = "Accelerated implementation of the PSNR-HVS and PSNR-HVS-M image metrics.";
   m.def("dct", [](xt::pytensor<double, 1> x) -> xt::pytensor<double, 1> {
     return xt::pytensor<double, 1>{dct(x)};
   });
   m.def("dct2", [](xt::pytensor<double, 2> x) -> xt::pytensor<double, 2> {
     return xt::pytensor<double, 2>{dct2(x)};
+  });
+  m.def("hvs_mse_tile", [](xt::pytensor<double, 2> x, xt::pytensor<double, 2> y) -> double {
+    return hvs_mse_tile(x, y);
+  });
+  m.def("hvs_mse", [](xt::pytensor<double, 2> x, xt::pytensor<double, 2> y) -> xt::pytensor<double, 2> {
+    return xt::pytensor<double, 2>{hvs_mse(x, y)};
+  });
+  m.def("masking", [](xt::pytensor<double, 2> x, xt::pytensor<double, 2> y) -> double {
+    return masking(x, y);
+  });
+  m.def("hvsm_mse_tile", [](xt::pytensor<double, 2> x, xt::pytensor<double, 2> y) -> double {
+    return hvsm_mse_tile(x, y);
+  });
+  m.def("hvsm_mse", [](xt::pytensor<double, 2> x, xt::pytensor<double, 2> y) -> xt::pytensor<double, 2> {
+    return xt::pytensor<double, 2>{hvsm_mse(x, y)};
+  });
+  m.def("psnr_hvs", [](xt::pytensor<double, 2> x, xt::pytensor<double, 2> y) -> double {
+    return psnr_hvs(x, y);
+  });
+  m.def("psnr_hvsm", [](xt::pytensor<double, 2> x, xt::pytensor<double, 2> y) -> double {
+    return psnr_hvsm(x, y);
   });
 }
