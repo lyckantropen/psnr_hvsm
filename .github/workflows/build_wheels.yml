@@ -20,7 +20,6 @@ jobs:
           CIBW_SKIP: "*-win32 *-manylinux_i686"
           CIBW_BEFORE_ALL_LINUX: bash ./linux-deps.sh && pwsh ./deps.ps1
           CIBW_BEFORE_ALL_WINDOWS: pwsh ./deps.ps1
-          # CIBW_BUILD_VERBOSITY: 1
           CIBW_MANYLINUX_X86_64_IMAGE: manylinux_2_24
           CIBW_TEST_EXTRAS: tests
           CIBW_TEST_COMMAND: "pytest {project}/tests"
@@ -33,9 +32,9 @@ jobs:
     needs: [build_wheels]
     runs-on: ubuntu-latest
     # upload to PyPI on every tag starting with 'v'
-    # if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags/v')
+    if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags/v')
     # alternatively, to publish when a GitHub Release is created, use the following rule:
-    if: github.event_name == 'release' && github.event.action == 'published'
+    # if: github.event_name == 'release' && github.event.action == 'published'
     steps:
       - uses: actions/download-artifact@v2
         with:

@@ -1,5 +1,5 @@
 #!/bin/bash
-# this script only exists to install powershell
+# this script only exists to install powershell in the manylinux_2_24 image
 apt-get update
 apt-get install -y --force-yes curl gnupg apt-transport-https
 curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add -
