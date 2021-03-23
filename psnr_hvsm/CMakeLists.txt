@@ -3,6 +3,7 @@ find_package(pybind11 REQUIRED)
 find_package(xtensor REQUIRED)
 find_package(xtensor-python REQUIRED)
 find_package(FFTW3 COMPONENTS DOUBLE_LIB REQUIRED)
+find_package(OpenMP COMPONENTS CXX)
 
 set(PSNR_HVSM_FILES
     dct.cpp
@@ -21,5 +22,10 @@ target_link_libraries(_psnr_hvsm PRIVATE
                                  Python3::NumPy
                                  xtensor::use_xsimd
 )
+
+if(OpenMP_FOUND)
+    target_compile_definitions(_psnr_hvsm PRIVATE -DPSNR_HVSM_OPENMP -DXTENSOR_USE_OPENMP)
+    target_link_libraries(_psnr_hvsm PRIVATE OpenMP::OpenMP_CXX)
+endif()
 
 install(TARGETS _psnr_hvsm LIBRARY DESTINATION psnr_hvsm)
