@@ -1,11 +1,14 @@
 ![cibuildwheel](https://github.com/lyckantropen/psnr_hvsm/actions/workflows/build_wheels.yml/badge.svg)
+![python_versions](https://img.shields.io/pypi/pyversions/psnr_hvsm)
+![pypi](https://img.shields.io/pypi/v/psnr_hvsm)
+![license](https://img.shields.io/github/license/lyckantropen/psnr_hvsm)
 
 # psnr_hvsm
 
 Accelerated Python package for computing the PSNR-HVS-M image metric.
 
 This is an implementation of the PSNR-HVS and PSNR-HVS-M metrics developed by
-[Nikolay Ponomarenko](www.ponomarenko.info/psnrhvsm).
+[Nikolay Ponomarenko](http://www.ponomarenko.info/psnrhvsm).
 
 ## Bibliography
 
