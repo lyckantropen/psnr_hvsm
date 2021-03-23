@@ -1,6 +1,7 @@
 ![cibuildwheel](https://github.com/lyckantropen/psnr_hvsm/actions/workflows/build_wheels.yml/badge.svg)
 ![python_versions](https://img.shields.io/pypi/pyversions/psnr_hvsm)
 ![pypi](https://img.shields.io/pypi/v/psnr_hvsm)
+![license](https://img.shields.io/github/license/lyckantropen/psnr_hvsm)
 
 # psnr_hvsm
 
