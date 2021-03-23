@@ -27,6 +27,20 @@ pip install psnr_hvsm
 
 ## Usage
 
+### Command line
+
+Command line support is an extra that pulls `opencv-python-headless`:
+
+```bash
+pip install psnr_hvsm[command_line]
+```
+
+```bash
+python -m psnr_hvsm original.png distorted.png
+```
+
+### As a library
+
 The function `psnr_hvs_hvsm` accepts images as single-channel floating-point
 NumPy arrays. The images need to be normalised, i.e. the values need to be in
 the range `[0,1]`. This can be achieved by converting the image to `float` and
