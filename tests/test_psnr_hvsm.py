@@ -32,3 +32,14 @@ def test_psnr_hvsm_and_hvms_mse_on_baboon_image():
 
     assert_almost_equal(phvsm, 51.647221219999615)
     assert_almost_equal(phvsm, _get_psnr(mse_hvsm.mean(), 1))
+
+
+def test_bench():
+    def bench():
+        return psnr_hvsm(org, tst)
+
+    import timeit
+
+    duration = timeit.timeit(bench, number=10)
+
+    print(duration)
