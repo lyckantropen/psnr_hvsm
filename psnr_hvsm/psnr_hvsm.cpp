@@ -64,8 +64,8 @@ namespace psnr_hvsm
 
   std::tuple<double, double> psnr_hvs_hvsm(const xt::xtensor<double, 2> &a, const xt::xtensor<double, 2> &b)
   {
-    auto [mse_hvs, mse_hvsm] = detail::hvs_hvsm_mse(a, b);
-    return std::make_tuple(detail::psnr(xt::mean(mse_hvs)()), detail::psnr(xt::mean(mse_hvsm)()));
+    auto mse = detail::hvs_hvsm_mse(a, b);
+    return std::make_tuple(detail::psnr(xt::mean(std::get<0>(mse))()), detail::psnr(xt::mean(std::get<1>(mse))()));
   }
 
   double psnr_hvs(const xt::xtensor<double, 2> &a, const xt::xtensor<double, 2> &b)
