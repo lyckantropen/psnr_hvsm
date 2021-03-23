@@ -68,7 +68,6 @@ Push-Location $ThirdPartyFolder/src
     Install-Package-From-Git -Url https://github.com/xtensor-stack/xtl.git -Ref tags/0.7.2 -SourceFolder xtl -Dest $ThirdPartyFolder
     Install-Package-From-Git -Url https://github.com/xtensor-stack/xtensor.git -Ref tags/0.23.2 -SourceFolder xtensor -Dest $ThirdPartyFolder
     Install-Package-From-Git -Url https://github.com/xtensor-stack/xsimd.git -Ref tags/7.4.9 -SourceFolder xsimd -Dest $ThirdPartyFolder
-    Install-Package-From-Git -Url https://github.com/xtensor-stack/xtensor-fftw.git -Ref tags/0.2.6 -SourceFolder xtensor-fftw -Dest $ThirdPartyFolder
 
     # we need to activate a virtual environment for xtensor-python with numpy in it
     # the version of numpy doesn't matter

@@ -136,3 +136,8 @@ dmypy.json
 
 # scikit-build cache
 _skbuild
+
+# MSVC binaries
+*.pyd
+*.ilk
+*.pdb
