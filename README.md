@@ -21,7 +21,6 @@ This is an implementation of the PSNR-HVS and PSNR-HVS-M metrics developed by
 * [FFTW3 >= 3.3.9](http://www.fftw.org/)
 * [pybind11](https://github.com/pybind/pybind11)
 * [xtensor](https://github.com/xtensor-stack/xtensor)
-* [xtensor-fftw](https://github.com/xtensor-stack/xtensor-fftw)
 * [xtensor-python](https://github.com/xtensor-stack/xtensor-python)
 
 All of the above can be automatically resolved by running `deps.ps1`, which is
