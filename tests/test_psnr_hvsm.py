@@ -4,7 +4,7 @@ import cv2
 import numpy as np
 from numpy.testing import assert_almost_equal
 
-from psnr_hvsm import hvs_mse, hvsm_mse, psnr_hvs, psnr_hvsm
+from psnr_hvsm import hvs_mse, hvsm_mse, psnr_hvs, psnr_hvs_hvsm, psnr_hvsm
 
 test_dir = Path(__file__).parent.absolute()
 org = cv2.imread((test_dir / 'baboon.png').as_posix(), cv2.IMREAD_GRAYSCALE).astype(float) / 255
@@ -34,12 +34,8 @@ def test_psnr_hvsm_and_hvms_mse_on_baboon_image():
     assert_almost_equal(phvsm, _get_psnr(mse_hvsm.mean(), 1))
 
 
-def test_bench():
-    def bench():
-        return psnr_hvsm(org, tst)
+def test_psnr_hvs_hvsm():
+    phvs, phvsm = psnr_hvs_hvsm(org, tst)
 
-    import timeit
-
-    duration = timeit.timeit(bench, number=10)
-
-    print(duration)
+    assert_almost_equal(phvs, 34.427054505764424)
+    assert_almost_equal(phvsm, 51.647221219999615)
