@@ -26,9 +26,12 @@ namespace psnr_hvsm
       xt::xtensor<double, 2> hvs_mse_per_tile = xt::zeros<double>({blocks_y, blocks_x});
       xt::xtensor<double, 2> hvsm_mse_per_tile = xt::zeros<double>({blocks_y, blocks_x});
 
-      for (size_t y = 0; y < image_a.shape(0); y += DCT_H)
+      #ifdef PSNR_HVSM_OPENMP
+      #pragma omp parallel for
+      #endif
+      for (int y = 0; y < image_a.shape(0); y += DCT_H)
       {
-        for (size_t x = 0; x < image_a.shape(1); x += DCT_W)
+        for (int x = 0; x < image_a.shape(1); x += DCT_W)
         {
           std::tie(
               hvs_mse_per_tile(y / DCT_H, x / DCT_W),
