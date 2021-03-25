@@ -12,6 +12,17 @@ except ImportError as e:
     print('$> pip install psnr_hvsm[command_line]')
     raise e
 
+
+def bt601luma(a):
+    r, g, b = np.moveaxis(np.flip(a, 2), 2, 0).astype(np.float64)
+    return (16 + 65.481*r/255 + 128.553*g/255 + 24.966*b/255)/255
+
+
+def bt601luma_norm(a):
+    r, g, b = np.moveaxis(np.flip(a, 2), 2, 0).astype(np.float64)
+    return 0.299*r + 0.587*g + 0.114*b
+
+
 parser = argparse.ArgumentParser(description='Compute the PSNR-HVS and PSNR-HVS-M metric between two images.')
 parser.add_argument('original', type=str, help='The original image')
 parser.add_argument('distorted', type=str, help='The distorted image')
@@ -25,10 +36,11 @@ dst = cv2.imread(args.distorted, cv2.IMREAD_UNCHANGED)
 
 if org.dtype == np.uint8:
     if len(org.shape) > 2:
-        org = cv2.cvtColor(org, cv2.COLOR_BGR2YCrCb)[:, :, 0]
-        dst = cv2.cvtColor(dst, cv2.COLOR_BGR2YCrCb)[:, :, 0]
-    org = org.astype(float) / 255
-    dst = dst.astype(float) / 255
+        org = bt601luma(org)
+        dst = bt601luma(dst)
+    else:
+        org = org.astype(float) / 255
+        dst = dst.astype(float) / 255
 else:
     if args.bits_per_component is None:
         raise Exception('Please provide --bits-per-component for image files that are >8bpc.')
@@ -38,8 +50,8 @@ else:
 
     if len(org.shape) > 2:
         # simplified luma (since we don't really know which ITU rec. to use)
-        org = org[:, :, 0] + 2*org[:, :, 1] + org[:, :, 2]
-        dst = dst[:, :, 0] + 2*dst[:, :, 1] + dst[:, :, 2]
+        org = bt601luma_norm(org)
+        dst = bt601luma_norm(dst)
 
 
 psnr_hvs, psnr_hvsm = psnr_hvs_hvsm(org, dst)
@@ -53,8 +65,8 @@ if args.json:
             'distorted': args.distorted,
             'psnr_hvs': psnr_hvs,
             'psnr_hvsm': psnr_hvsm,
-            'psnr': psnr_mse
+            'psnr_y': psnr_mse
         }
     ))
 else:
-    print('PSNR-HVS=%f, PSNR-HVS-M=%f, PSNR=%f' % (psnr_hvs, psnr_hvsm, psnr_mse))
+    print('PSNR-HVS=%f, PSNR-HVS-M=%f, PSNR-Y=%f' % (psnr_hvs, psnr_hvsm, psnr_mse))

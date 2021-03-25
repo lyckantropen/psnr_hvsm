@@ -10,6 +10,16 @@ Accelerated Python package for computing the PSNR-HVS-M image metric.
 This is an implementation of the PSNR-HVS and PSNR-HVS-M metrics developed by
 [Nikolay Ponomarenko](http://www.ponomarenko.info/psnrhvsm).
 
+The values produced by this library fall within <0.1 dB precision when compared
+to the values within the [TID2013
+dataset](https://www.sciencedirect.com/science/article/pii/S0923596514001490).
+(See the folder [`tid2013_results`](tid2013_results).) The cause of the
+discrepancy is not clear but the possible culprit is the internals of the
+BT.601-5 conversion that is done within the Matlab function `rgb2ycbcr`. In
+this library the color transform is not prescribed, but in the command-line
+version the BT.601 for 8-bit digital RGB signals is used if the input is an
+8-bit-per-component RGB image and the analog version is used otherwise.
+
 ## Bibliography
 
 * [Egiazarian, Karen, et al. "New full-reference quality metrics based on HVS." Proceedings of the Second International Workshop on Video Processing and Quality Metrics. Vol. 4. 2006.](https://www.researchgate.net/profile/Vladimir_Lukin2/publication/251229783_A_NEW_FULL-REFERENCE_QUALITY_METRICS_BASED_ON_HVS/links/0046351f669a9c1869000000.pdf)
