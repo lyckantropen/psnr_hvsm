@@ -5,25 +5,25 @@
 
 # psnr_hvsm
 
-Accelerated Python package for computing the PSNR-HVS-M image metric.
+Accelerated Python package for computing several image metrics based on human
+perception.
 
-This is an implementation of the PSNR-HVS and PSNR-HVS-M metrics developed by
-[Nikolay Ponomarenko](http://www.ponomarenko.info/psnrhvsm).
+This is an implementation of the PSNR-HVS, PSNR-HVS-M, PSNR-HA and PSNR-HMA
+metrics developed by [Nikolay
+Ponomarenko](http://www.ponomarenko.info/psnrhvsm).
 
-The values produced by this library fall within <0.1 dB precision when compared
-to the values within the [TID2013
+The values produced by this library have been cross-checked against the results
+within the [TID2013
 dataset](https://www.sciencedirect.com/science/article/pii/S0923596514001490).
-(See the folder [`tid2013_results`](tid2013_results).) The cause of the
-discrepancy is not clear but the possible culprit is the internals of the
-BT.601-5 conversion that is done within the Matlab function `rgb2ycbcr`. In
-this library the color transform is not prescribed, but in the command-line
-version the BT.601 for 8-bit digital RGB signals is used if the input is an
-8-bit-per-component RGB image and the analog version is used otherwise.
+(See the folder [`tid2013_results`](tid2013_results).) The only difference is
+that this library follows the common convention that PSNR for identical signals
+equals 100.0.
 
 ## Bibliography
 
 * [Egiazarian, Karen, et al. "New full-reference quality metrics based on HVS." Proceedings of the Second International Workshop on Video Processing and Quality Metrics. Vol. 4. 2006.](https://www.researchgate.net/profile/Vladimir_Lukin2/publication/251229783_A_NEW_FULL-REFERENCE_QUALITY_METRICS_BASED_ON_HVS/links/0046351f669a9c1869000000.pdf)
 * [Ponomarenko, Nikolay, et al. "On between-coefficient contrast masking of DCT basis functions." Proceedings of the third international workshop on video processing and quality metrics. Vol. 4. 2007.](https://www.researchgate.net/profile/Vladimir-Lukin-4/publication/242309240_On_between-coefficient_contrast_masking_of_DCT_basis_functions/links/0c96052442be7c3176000000/On-between-coefficient-contrast-masking-of-DCT-basis-functions.pdf)
+* [Ponomarenko, Nikolay, et al. "Modified image visual quality metrics for contrast change and mean shift accounting." 2011 11th International Conference The Experience of Designing and Application of CAD Systems in Microelectronics (CADSM). IEEE, 2011.](https://www.researchgate.net/profile/Marco_Carli/publication/261094981_Color_image_database_TID2013_Peculiarities_and_preliminary_results/links/0deec536c86764dad6000000/Color-image-database-TID2013-Peculiarities-and-preliminary-results.pdf)
 
 ## Installation
 

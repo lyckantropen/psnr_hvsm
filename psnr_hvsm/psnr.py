@@ -3,7 +3,6 @@ import numpy as np
 
 def psnr(a, b):
     """Compute the Peak Signal-to-Noise Ratio of two normalized signals."""
-
     mse = np.power(a - b, 2.).mean()
 
     if mse == 0:

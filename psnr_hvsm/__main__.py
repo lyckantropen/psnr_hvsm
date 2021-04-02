@@ -2,7 +2,8 @@ import argparse
 
 import numpy as np
 
-from . import psnr_hvs_hvsm
+from . import psnr_ha_hma, psnr_hvs_hvsm
+from .bt601 import bt601luma, bt601luma_norm
 from .psnr import psnr
 
 try:
@@ -13,16 +14,6 @@ except ImportError as e:
     raise e
 
 
-def bt601luma(a):
-    r, g, b = np.moveaxis(np.flip(a, 2), 2, 0).astype(np.float64)
-    return (16 + 65.481*r/255 + 128.553*g/255 + 24.966*b/255)/255
-
-
-def bt601luma_norm(a):
-    r, g, b = np.moveaxis(np.flip(a, 2), 2, 0).astype(np.float64)
-    return 0.299*r + 0.587*g + 0.114*b
-
-
 parser = argparse.ArgumentParser(description='Compute the PSNR-HVS and PSNR-HVS-M metric between two images.')
 parser.add_argument('original', type=str, help='The original image')
 parser.add_argument('distorted', type=str, help='The distorted image')
@@ -31,8 +22,8 @@ parser.add_argument('--bits-per-component', type=int, default=None, help='Bits p
 
 args = parser.parse_args()
 
-org = cv2.imread(args.original, cv2.IMREAD_UNCHANGED)
-dst = cv2.imread(args.distorted, cv2.IMREAD_UNCHANGED)
+org = cv2.imread(args.original, cv2.IMREAD_ANYDEPTH)
+dst = cv2.imread(args.distorted, cv2.IMREAD_ANYDEPTH)
 
 if org.dtype == np.uint8:
     if len(org.shape) > 2:
@@ -55,6 +46,7 @@ else:
 
 
 psnr_hvs, psnr_hvsm = psnr_hvs_hvsm(org, dst)
+psnr_ha, psnr_hma = psnr_ha_hma(org, dst)
 psnr_mse = psnr(org, dst)  # add PSNR for good measure
 
 if args.json:
@@ -65,8 +57,10 @@ if args.json:
             'distorted': args.distorted,
             'psnr_hvs': psnr_hvs,
             'psnr_hvsm': psnr_hvsm,
+            'psnr_ha': psnr_ha,
+            'psnr_hma': psnr_hma,
             'psnr_y': psnr_mse
         }
     ))
 else:
-    print('PSNR-HVS=%f, PSNR-HVS-M=%f, PSNR-Y=%f' % (psnr_hvs, psnr_hvsm, psnr_mse))
+    print('PSNR-HVS=%f, PSNR-HVS-M=%f, PSNR-HA=%f, PSNR-HMA=%f, PSNR-Y=%f' % (psnr_hvs, psnr_hvsm, psnr_ha, psnr_hma, psnr_mse))
