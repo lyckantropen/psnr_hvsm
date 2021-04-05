@@ -1,3 +1,5 @@
+"""Definition of PSNR."""
+
 import numpy as np
 
 

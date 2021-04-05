@@ -63,11 +63,11 @@ this is 255.
 The images must be padded to a multiple of 8 in each dimension.
 
 ```python
-import cv2
+from imageio import imread
 from psnr_hvsm import psnr_hvs_hvsm
 
-image1 = cv2.imread('tests/baboon.png', cv2.IMREAD_GRAYSCALE).astype(float) / 255
-image2 = cv2.imread('tests/baboon_msk.png', cv2.IMREAD_GRAYSCALE).astype(float) / 255
+image1 = imread('tests/baboon.png').astype(float) / 255
+image2 = imread('tests/baboon_msk.png').astype(float) / 255
 
 psnr_hvs, psnr_hvsm = psnr_hvs_hvsm(image1, image2)
 

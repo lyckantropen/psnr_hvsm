@@ -1,10 +1,8 @@
+"""Entry point for running the package as a module. Computes the metrics from the command line."""
+
 import argparse
 
-import numpy as np
-
-from . import psnr_ha_hma, psnr_ha_hma_color, psnr_hvs_hvsm
-from .bt601 import bt601ycbcr, bt601ypbpr
-from .psnr import psnr
+from .compute_all_metrics import compute_all_metrics
 
 try:
     from imageio import imread
@@ -28,49 +26,8 @@ args = parser.parse_args()
 org = imread(args.original)
 dst = imread(args.distorted)
 
-if len(org.shape) > 2:
-    # discard alpha
-    if org.shape[2] > 3:
-        org = org[:, :, :3]
-    if dst.shape[2] > 3:
-        dst = dst[:, :, :3]
 
-    # color processing
-    if org.dtype == np.uint8:
-        # use BT.601 YCbCr
-        xy, xcb, xcr = bt601ycbcr(org)
-        yy, ycb, ycr = bt601ycbcr(dst)
-        org = org.astype(float) / 255
-        dst = dst.astype(float) / 255
-    else:
-        if args.max_value is None:
-            raise Exception('Please provide --max-value for image files that are >8bpc.')
-        org = org.astype(float) / args.max_value
-        dst = dst.astype(float) / args.max_value
-        # assuming analog values (we don't know the ITU rec. to use)
-        xy, xcb, xcr = bt601ypbpr(org)
-        yy, ycb, ycr = bt601ypbpr(dst)
-
-    if not args.hma_luma:
-        psnr_ha, psnr_hma = psnr_ha_hma_color(xy, xcb, xcr, yy, ycb, ycr)
-    else:
-        psnr_ha, psnr_hma = psnr_ha_hma(xy, yy)
-
-else:
-    if org.dtype == np.uint8:
-        xy = org.astype(float) / 255
-        yy = dst.astype(float) / 255
-    else:
-        if args.max_value is None:
-            raise Exception('Please provide --max-value for image files that are >8bpc.')
-        xy = org.astype(float) / args.max_value
-        yy = dst.astype(float) / args.max_value
-
-    psnr_ha, psnr_hma = psnr_ha_hma(xy, yy)
-
-psnr_hvs, psnr_hvsm = psnr_hvs_hvsm(xy, yy)
-psnr_mse = psnr(org, dst)  # add PSNR for good measure
-
+psnr_hvs, psnr_hvsm, psnr_ha, psnr_hma, psnr_mse = compute_all_metrics(org, dst, args.max_value, args.hma_luma)
 
 if args.json:
     import json

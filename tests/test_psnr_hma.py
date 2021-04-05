@@ -31,7 +31,7 @@ def test_ha_hma_mse():
 
 def test_ha_hma_mse_color():
     org = imread((test_dir / 'kodim01_c.png').as_posix()).astype(float)
-    tst = imread((test_dir / 'kodim01_c_contrast.png').as_posix()).astype(float)[:, :, :3]
+    tst = imread((test_dir / 'kodim01_c_contrast.png').as_posix()).astype(float)
 
     y0, _, _ = bt601ycbcr(org)
     y1, _, _ = bt601ycbcr(tst)

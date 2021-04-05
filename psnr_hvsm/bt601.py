@@ -4,6 +4,7 @@ import numpy as np
 
 
 def bt601ycbcr(a):
+    """Convert an RGB image into normalized YCbCr."""
     r, g, b = np.moveaxis(a, 2, 0).astype(np.float64)
     y = np.round(16 + 65.481*r/255 + 128.553*g/255 + 24.966*b/255)/255
     cb = np.round(128 - 37.797*r/255 - 74.203*g/255 + 112.0*b/255)/255
@@ -12,6 +13,7 @@ def bt601ycbcr(a):
 
 
 def bt601ypbpr(a):
+    """Convert a normalized RGB image into YPbPr (analog YCbCr)."""
     r, g, b = np.moveaxis(a, 2, 0).astype(np.float64)
     kb = 0.114
     kr = 0.299
