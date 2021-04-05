@@ -19,6 +19,8 @@ dataset](https://www.sciencedirect.com/science/article/pii/S0923596514001490).
 that this library follows the common convention that PSNR for identical signals
 equals 100.0.
 
+_A miniscule discrepancy for PSNR-HMA (<0.01dB on average) is under investigation._
+
 ## Bibliography
 
 * [Egiazarian, Karen, et al. "New full-reference quality metrics based on HVS." Proceedings of the Second International Workshop on Video Processing and Quality Metrics. Vol. 4. 2006.](https://www.researchgate.net/profile/Vladimir_Lukin2/publication/251229783_A_NEW_FULL-REFERENCE_QUALITY_METRICS_BASED_ON_HVS/links/0046351f669a9c1869000000.pdf)
@@ -80,6 +82,16 @@ print(psnr_hvs, psnr_hvsm)
 
 If you need to measure PSNR-HVS and PSNR-HVS-M on an RGB image, you need to
 convert it to an YUV colorspace and pass in only the luma component.
+
+### Computing metrics for the TID2013 dataset
+
+If you have a copy of the [TID2013
+dataset](https://www.sciencedirect.com/science/article/pii/S0923596514001490),
+you can re-verify the metrics for yourself:
+
+```bash
+python -m psnr_hvsm.tid2013_metrics D:\tid2013\ .\tid2013_results\
+```
 
 ### Other exported functions
 

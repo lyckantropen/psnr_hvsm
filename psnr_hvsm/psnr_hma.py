@@ -24,7 +24,11 @@ def ha_hma_mse(x, y):
     c = y + delt
     cm = c.mean()
 
-    popr = np.sum((x-xm)*(c-cm))/np.sum(np.power(c-cm, 2))
+    div = np.sum(np.power(c-cm, 2))
+    if div == 0.0:
+        popr = 1.0
+    else:
+        popr = np.sum((x-xm)*(c-cm))/div
 
     d = cm + (c-cm)*popr
 
