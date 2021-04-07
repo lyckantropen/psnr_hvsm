@@ -44,7 +44,7 @@ pip install psnr_hvsm
 
 ### Command line
 
-Command line support is an extra that pulls `opencv-python-headless`:
+Command line support is an extra that pulls `imageio`:
 
 ```bash
 pip install psnr_hvsm[command_line]
