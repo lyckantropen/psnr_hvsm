@@ -25,7 +25,7 @@ _A miniscule discrepancy for PSNR-HMA (<0.01dB on average) is under investigatio
 
 * [Egiazarian, Karen, et al. "New full-reference quality metrics based on HVS." Proceedings of the Second International Workshop on Video Processing and Quality Metrics. Vol. 4. 2006.](https://www.researchgate.net/profile/Vladimir_Lukin2/publication/251229783_A_NEW_FULL-REFERENCE_QUALITY_METRICS_BASED_ON_HVS/links/0046351f669a9c1869000000.pdf)
 * [Ponomarenko, Nikolay, et al. "On between-coefficient contrast masking of DCT basis functions." Proceedings of the third international workshop on video processing and quality metrics. Vol. 4. 2007.](https://www.researchgate.net/profile/Vladimir-Lukin-4/publication/242309240_On_between-coefficient_contrast_masking_of_DCT_basis_functions/links/0c96052442be7c3176000000/On-between-coefficient-contrast-masking-of-DCT-basis-functions.pdf)
-* [Ponomarenko, Nikolay, et al. "Modified image visual quality metrics for contrast change and mean shift accounting." 2011 11th International Conference The Experience of Designing and Application of CAD Systems in Microelectronics (CADSM). IEEE, 2011.](https://www.researchgate.net/profile/Marco_Carli/publication/261094981_Color_image_database_TID2013_Peculiarities_and_preliminary_results/links/0deec536c86764dad6000000/Color-image-database-TID2013-Peculiarities-and-preliminary-results.pdf)
+* [Ponomarenko, Nikolay, et al. "Modified image visual quality metrics for contrast change and mean shift accounting." 2011 11th International Conference The Experience of Designing and Application of CAD Systems in Microelectronics (CADSM). IEEE, 2011.](https://ponomarenko.info/papers/psnrhma.pdf)
 
 ## Installation
 
