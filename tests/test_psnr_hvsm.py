@@ -7,8 +7,8 @@ from numpy.testing import assert_almost_equal
 from psnr_hvsm import hvs_mse, hvsm_mse, psnr_hvs, psnr_hvs_hvsm, psnr_hvsm
 
 test_dir = Path(__file__).parent.absolute()
-org = imread((test_dir / 'baboon.png').as_posix()).astype(float) / 255
-tst = imread((test_dir / 'baboon_msk.png').as_posix()).astype(float) / 255
+org = imread((test_dir / 'baboon.png').as_posix(), mode='L').astype(float) / 255
+tst = imread((test_dir / 'baboon_msk.png').as_posix(), mode='L').astype(float) / 255
 
 
 def _get_psnr(s, mv):

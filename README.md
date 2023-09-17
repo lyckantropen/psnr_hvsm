@@ -29,7 +29,7 @@ _A miniscule discrepancy for PSNR-HMA (<0.01dB on average) is under investigatio
 
 ## Installation
 
-`psnr_hvsm` supports Python 3.6-3.9. Packages are distributed on PyPi. Be sure
+`psnr_hvsm` supports Python 3.7-3.11. Packages are distributed on PyPi. Be sure
 to have an up-to-date pip to be able to install the correct packages on Linux:
 
 ```bash
@@ -113,9 +113,14 @@ python -m psnr_hvsm.tid2013_metrics D:\tid2013\ .\tid2013_results\
 * [xtensor](https://github.com/xtensor-stack/xtensor)
 * [xtensor-python](https://github.com/xtensor-stack/xtensor-python)
 
-All of the above can be automatically resolved by running `deps.ps1`, which is
-a cross-platform PowerShell script (i.e. it can also be run under Linux if you
-have PowerShell installed).
+All of the above can be automatically resolved by running `deps.ps1`, which is a
+cross-platform PowerShell script (i.e. it can also be run under Linux if you
+have PowerShell installed). Alternatively, you can create a `conda` environment
+using the provided YAML file:
+
+```bash
+conda env create -f psnr_hvsm-dev.yml
+```
 
 ### Development mode
 

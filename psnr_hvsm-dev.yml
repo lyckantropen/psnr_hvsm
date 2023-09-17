@@ -1,0 +1,10 @@
+name: psnr_hvsm-dev
+channels:
+  - nodefaults
+  - conda-forge
+dependencies:
+  - numpy>=1.18
+  - xtensor-python
+  - xtensor
+  - xsimd
+  - pybind11

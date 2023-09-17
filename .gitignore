@@ -141,3 +141,5 @@ _skbuild
 *.pyd
 *.ilk
 *.pdb
+
+build_*
