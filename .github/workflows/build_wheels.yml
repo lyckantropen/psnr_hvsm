@@ -13,11 +13,16 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
+      - uses: actions/setup-python@v3
+
+      - name: Install cibuildwheel
+        run: python -m pip install cibuildwheel==2.16.2
+
       - name: Build wheels
-        uses: joerick/cibuildwheel@v1.10.0
+        run: python -m cibuildwheel --output-dir wheelhouse
         env:
           CIBW_BUILD: "cp3{7,8,9,10,11}-*"
-          CIBW_SKIP: "*-win32 *-manylinux_i686"
+          CIBW_SKIP: "*-win32 *-manylinux_i686 *-musllinux*"
           CIBW_BEFORE_ALL_LINUX: bash ./linux-deps.sh
           CIBW_BEFORE_ALL_WINDOWS: pwsh ./windows-deps.ps1
           CIBW_ENVIRONMENT_WINDOWS: CC=clang CXX=clang++
