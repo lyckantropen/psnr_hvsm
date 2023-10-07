@@ -9,7 +9,7 @@ build-backend = "scikit_build_core.build"
 
 [project]
 name = "psnr_hvsm"
-version = "0.1.1"
+version = "0.1.2"
 authors = [{name = "Karol Trojanowski", email = "trojanowski.ifuj@gmail.com"}]
 description = "Accelerated implementations of the PSNR-HVS, PSNR-HVS-M, PSNR-HA and PSNR-HMA image metrics"
 license = {text = "MIT"}
