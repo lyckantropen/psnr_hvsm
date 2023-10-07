@@ -113,10 +113,8 @@ python -m psnr_hvsm.tid2013_metrics D:\tid2013\ .\tid2013_results\
 * [xtensor](https://github.com/xtensor-stack/xtensor)
 * [xtensor-python](https://github.com/xtensor-stack/xtensor-python)
 
-All of the above can be automatically resolved by running `deps.ps1`, which is a
-cross-platform PowerShell script (i.e. it can also be run under Linux if you
-have PowerShell installed). Alternatively, you can create a `conda` environment
-using the provided YAML file:
+FFTW3 is automatically resolved by CMake and the rest can be installed by
+creating a `conda` environment using the provided YAML file:
 
 ```bash
 conda env create -f psnr_hvsm-dev.yml
