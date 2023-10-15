@@ -3,7 +3,7 @@ from numpy.testing import assert_array_almost_equal
 from scipy.fft import dct as sp_dct
 from scipy.fft import dctn as sp_dctn
 
-from psnr_hvsm import dct, dct2
+from psnr_hvsm._psnr_hvsm import dct, dct2
 
 
 def test_dct_produces_same_result_on_1d_ramp():
@@ -37,6 +37,7 @@ def test_dct_produces_same_result_on_1d_assorted_values_16():
 
     assert_array_almost_equal(dct(x), sp_dct(x, type=2, norm='ortho'))
 
+
 def test_dct2_produces_same_result_on_2d_assorted_values():
     x = np.array([[-0.27268473, 1.89427747, -0.28792127, -2.94728155, 3.1352648,
                    -1.29961984, 0.31517309, -1.79968345],
@@ -57,6 +58,7 @@ def test_dct2_produces_same_result_on_2d_assorted_values():
 
     assert_array_almost_equal(dct2(x), sp_dctn(x, type=2, norm='ortho'))
 
+
 def test_dct2_produces_same_result_on_2d_assorted_values_16x16():
     x = np.array([[-0.27268473, 1.89427747, -0.28792127, -2.94728155, 3.1352648,
                    -1.29961984, 0.31517309, -1.79968345],
@@ -75,6 +77,6 @@ def test_dct2_produces_same_result_on_2d_assorted_values_16x16():
                   [-2.44960754, 4.17607207, -1.38446204, 1.34689231, -0.48578666,
                    -3.4962453, 1.8764909, -5.84631864]])
 
-    x = np.tile(x, (2,2))
+    x = np.tile(x, (2, 2))
 
     assert_array_almost_equal(dct2(x), sp_dctn(x, type=2, norm='ortho'))

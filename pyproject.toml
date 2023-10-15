@@ -9,11 +9,11 @@ build-backend = "scikit_build_core.build"
 
 [project]
 name = "psnr_hvsm"
-version = "0.1.2"
+version = "0.2.0"
 authors = [{name = "Karol Trojanowski", email = "trojanowski.ifuj@gmail.com"}]
 description = "Accelerated implementations of the PSNR-HVS, PSNR-HVS-M, PSNR-HA and PSNR-HMA image metrics"
 license = {text = "MIT"}
-keywords = ["psnr hvs video image metric"]
+keywords = ["psnr hvs video image metric pytorch"]
 classifiers = [
     "Development Status :: 4 - Beta",
     "Programming Language :: Python :: 3",
@@ -48,7 +48,8 @@ tests = [
     "scipy",
     "imageio",
 ]
-command_line = ["imageio"]
+command_line = ["imageio", "tqdm"]
+torch = ["torch", "torch-dct>=0.1.6"]
 
 [tool.scikit-build]
 editable.mode = "redirect"
@@ -59,4 +60,7 @@ cmake.args = [ "-DCMAKE_POSITION_INDEPENDENT_CODE=ON" ]
 testpaths = ["tests"]
 
 [tool.flake8]
+max_line_length = "160"
+
+[tool.autopep8]
 max_line_length = "160"

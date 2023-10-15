@@ -25,13 +25,14 @@ set(PSNR_HVSM_FILES
 pybind11_add_module(_psnr_hvsm ${PSNR_HVSM_FILES})
 target_compile_features(_psnr_hvsm PRIVATE cxx_std_17)
 target_compile_definitions(_psnr_hvsm PRIVATE -D_USE_MATH_DEFINES)
-target_include_directories(_psnr_hvsm PRIVATE ${xtensor_INCLUDE_DIRS} ${xtensor-python_INCLUDE_DIRS} ${fftw3_SOURCE_DIR}/api)
-target_link_directories(_psnr_hvsm PRIVATE)
+target_include_directories(_psnr_hvsm PRIVATE ${fftw3_SOURCE_DIR}/api)
 target_link_libraries(_psnr_hvsm PRIVATE
                                  fftw3
                                  pybind11::module
                                  Python3::Module
                                  Python3::NumPy
+                                 xtensor
+                                 xtensor-python
                                  xtensor::use_xsimd
 )
 

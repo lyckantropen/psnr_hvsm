@@ -2,7 +2,7 @@
 
 import argparse
 
-from .compute_all_metrics import compute_all_metrics
+from .compute_all_metrics import backend, compute_all_metrics
 
 try:
     from imageio import imread
@@ -11,6 +11,11 @@ except ImportError as e:
     print('$> pip install psnr_hvsm[command_line]')
     raise e
 
+if backend == 'torch':
+    import os
+
+    import torch
+    torch_device = os.environ.get('PSNR_HVSM_TORCH_DEVICE', 'cuda')
 
 parser = argparse.ArgumentParser(
     description='Compute the PSNR-HVS and PSNR-HVS-M metric between two images.')
@@ -26,6 +31,15 @@ args = parser.parse_args()
 org = imread(args.original)
 dst = imread(args.distorted)
 
+# discard alpha
+if org.shape[-1] > 3:
+    org = org[..., :3]
+if dst.shape[-1] > 3:
+    dst = dst[..., :3]
+
+if backend == 'torch':
+    org = torch.tensor(org, device=torch_device).moveaxis(-1, -3)
+    dst = torch.tensor(dst, device=torch_device).moveaxis(-1, -3)
 
 psnr_hvs, psnr_hvsm, psnr_ha, psnr_hma, psnr_mse = compute_all_metrics(org, dst, args.max_value, args.hma_luma)
 
@@ -35,11 +49,11 @@ if args.json:
         {
             'original': args.original,
             'distorted': args.distorted,
-            'psnr_hvs': psnr_hvs,
-            'psnr_hvsm': psnr_hvsm,
-            'psnr_ha': psnr_ha,
-            'psnr_hma': psnr_hma,
-            'psnr': psnr_mse
+            'psnr_hvs': float(psnr_hvs),
+            'psnr_hvsm': float(psnr_hvsm),
+            'psnr_ha': float(psnr_ha),
+            'psnr_hma': float(psnr_hma),
+            'psnr': float(psnr_mse)
         }
     ))
 else:

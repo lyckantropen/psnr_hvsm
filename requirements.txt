@@ -1,1 +1,1 @@
--e .[tests]
+-e .[tests,torch]
