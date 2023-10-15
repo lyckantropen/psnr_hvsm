@@ -41,6 +41,12 @@ python -m pip install --upgrade pip
 pip install psnr_hvsm
 ```
 
+With PyTorch support:
+
+```bash
+pip install psnr_hvsm[torch]
+```
+
 ## Usage
 
 ### Command line
@@ -60,7 +66,7 @@ python -m psnr_hvsm original.png distorted.png
 The backend can be set by setting the `PSNR_HVSM_BACKEND` environment variable.
 Valid backends are:
 
-- `numpy` - pure NumPy
+- `numpy` - pure NumPy using `scipy.fft` for DCT
 - `cpp` - C++ using FFTW3
 - `torch` - PyTorch; install as `psnr_hvsm[torch]` to install PyTorch as well
 
