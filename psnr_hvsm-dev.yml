@@ -3,7 +3,7 @@ channels:
   - nodefaults
   - conda-forge
 dependencies:
-  - numpy>=1.18
+  - numpy>=1.18,<2
   - xtensor-python
   - xtensor
   - xsimd

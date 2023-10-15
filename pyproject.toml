@@ -9,9 +9,9 @@ build-backend = "scikit_build_core.build"
 
 [project]
 name = "psnr_hvsm"
-version = "0.2.0"
+version = "0.2.1"
 authors = [{name = "Karol Trojanowski", email = "trojanowski.ifuj@gmail.com"}]
-description = "Accelerated implementations of the PSNR-HVS, PSNR-HVS-M, PSNR-HA and PSNR-HMA image metrics"
+description = "Accelerated implementations of the PSNR-HVS, PSNR-HVS-M, PSNR-HA and PSNR-HMA image metrics for NumPy and PyTorch"
 license = {text = "MIT"}
 keywords = ["psnr hvs video image metric pytorch"]
 classifiers = [
@@ -29,9 +29,9 @@ classifiers = [
     "Intended Audience :: Science/Research",
     "Topic :: Scientific/Engineering :: Image Processing",
 ]
-requires-python = ">= 3.8, <4"
+requires-python = ">= 3.7, <4"
 dependencies = [
-    "numpy >= 1.18",
+    "numpy >= 1.18,<2",
     'msvc-runtime >= 14; platform_system == "Windows"',
 ]
 
