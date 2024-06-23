@@ -30,7 +30,7 @@ investigation._
 
 ## Installation
 
-`psnr_hvsm` supports Python 3.7-3.11. Packages are distributed on PyPi. Be sure
+`psnr_hvsm` supports Python 3.7-3.12. Packages are distributed on PyPi. Be sure
 to have an up-to-date pip to be able to install the correct packages on Linux:
 
 ```bash

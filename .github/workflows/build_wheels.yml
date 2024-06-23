@@ -21,7 +21,7 @@ jobs:
       - name: Build wheels
         run: python -m cibuildwheel --output-dir wheelhouse
         env:
-          CIBW_BUILD: "cp3{7,8,9,10,11}-*"
+          CIBW_BUILD: "cp3{7,8,9,10,11,12}-*"
           CIBW_SKIP: "*-win32 *-manylinux_i686 *-musllinux*"
           CIBW_BEFORE_ALL_LINUX: bash ./linux-deps.sh
           CIBW_BEFORE_ALL_WINDOWS: pwsh ./windows-deps.ps1
