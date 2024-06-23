@@ -9,7 +9,7 @@ build-backend = "scikit_build_core.build"
 
 [project]
 name = "psnr_hvsm"
-version = "0.2.1"
+version = "0.2.2"
 authors = [{name = "Karol Trojanowski", email = "trojanowski.ifuj@gmail.com"}]
 description = "Accelerated implementations of the PSNR-HVS, PSNR-HVS-M, PSNR-HA and PSNR-HMA image metrics for NumPy and PyTorch"
 license = {text = "MIT"}
@@ -22,6 +22,7 @@ classifiers = [
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
     "Programming Language :: C++",
     "Operating System :: POSIX :: Linux",
     "Operating System :: Microsoft :: Windows",
