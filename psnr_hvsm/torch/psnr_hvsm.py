@@ -14,7 +14,7 @@ def to_blocks(x: torch.Tensor) -> torch.Tensor:
     return x.view(-1, h // DCT_H, DCT_H, w // DCT_W, DCT_W).moveaxis(-2, -3).reshape(*prev_shape, -1, DCT_H, DCT_W)
 
 
-def masking(tiles: torch.Tensor, tiles_dct: torch.Tensor) -> torch.Tensor:
+def masking(tiles: torch.Tensor, tiles_dct: torch.Tensor, epsilon: float = 0.0) -> torch.Tensor:
     device = tiles.device
     qh = DCT_H // 2
     qw = DCT_W // 2
@@ -30,12 +30,12 @@ def masking(tiles: torch.Tensor, tiles_dct: torch.Tensor) -> torch.Tensor:
     var = torch.where(var != 0.0, (vari(tiles[..., :qh, :qw]) +
                                    vari(tiles[..., :qh, qw:]) +
                                    vari(tiles[..., qh:, :qw]) +
-                                   vari(tiles[..., qh:, qw:])) / var, 0.0)
+                                   vari(tiles[..., qh:, qw:])) / (var + epsilon), 0.0)
 
-    return torch.sqrt(mask * var / (qh * qw) / (DCT_H * DCT_W))
+    return torch.sqrt(mask * var / (qh * qw) / (DCT_H * DCT_W) + epsilon)
 
 
-def hvs_hvsm_mse_tiles(images_a: torch.Tensor, images_b: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor]:
+def hvs_hvsm_mse_tiles(images_a: torch.Tensor, images_b: torch.Tensor, masking_epsilon: float = 0.0) -> Tuple[torch.Tensor, torch.Tensor]:
     if isinstance(images_a, np.ndarray):
         images_a = torch.tensor(images_a)
     if isinstance(images_b, np.ndarray):
@@ -51,8 +51,8 @@ def hvs_hvsm_mse_tiles(images_a: torch.Tensor, images_b: torch.Tensor) -> Tuple[
     dct_b = dct.dct_2d(tiles_b, norm='ortho')
 
     dif = torch.abs(dct_a - dct_b)
-    mask_a = masking(tiles_a, dct_a)
-    mask_b = masking(tiles_b, dct_b)
+    mask_a = masking(tiles_a, dct_a, epsilon=masking_epsilon)
+    mask_b = masking(tiles_b, dct_b, epsilon=masking_epsilon)
 
     mask_a = torch.where(mask_b > mask_a, mask_b, mask_a)
 
@@ -71,13 +71,13 @@ def hvs_hvsm_mse_tiles(images_a: torch.Tensor, images_b: torch.Tensor) -> Tuple[
             weighted_mse / (DCT_H * DCT_W))
 
 
-def hvs_hvsm_mse(images_a: torch.Tensor, images_b: torch.Tensor, batch=False) -> Tuple[torch.Tensor, torch.Tensor]:
+def hvs_hvsm_mse(images_a: torch.Tensor, images_b: torch.Tensor, batch: bool = False, masking_epsilon: float = 0.0) -> Tuple[torch.Tensor, torch.Tensor]:
     if isinstance(images_a, np.ndarray):
         images_a = torch.tensor(images_a)
     if isinstance(images_b, np.ndarray):
         images_b = torch.tensor(images_b)
 
-    hvs_tiles, hvsm_tiles = hvs_hvsm_mse_tiles(images_a, images_b)
+    hvs_tiles, hvsm_tiles = hvs_hvsm_mse_tiles(images_a, images_b, masking_epsilon=masking_epsilon)
 
     if batch or len(hvs_tiles.shape) < 2:
         return hvs_tiles.mean(dim=-1), hvsm_tiles.mean(dim=-1)
@@ -85,13 +85,13 @@ def hvs_hvsm_mse(images_a: torch.Tensor, images_b: torch.Tensor, batch=False) ->
         return hvs_tiles.mean(dim=(0, -1)), hvsm_tiles.mean(dim=(0, -1))
 
 
-def psnr_hvs_hvsm(images_a: torch.Tensor, images_b: torch.Tensor, batch=False) -> Tuple[torch.Tensor, torch.Tensor]:
+def psnr_hvs_hvsm(images_a: torch.Tensor, images_b: torch.Tensor, batch: bool = False, masking_epsilon: float = 0.0) -> Tuple[torch.Tensor, torch.Tensor]:
     if isinstance(images_a, np.ndarray):
         images_a = torch.tensor(images_a)
     if isinstance(images_b, np.ndarray):
         images_b = torch.tensor(images_b)
 
-    hvs_tiles, hvsm_tiles = hvs_hvsm_mse_tiles(images_a, images_b)
+    hvs_tiles, hvsm_tiles = hvs_hvsm_mse_tiles(images_a, images_b, masking_epsilon=masking_epsilon)
 
     if batch or len(hvs_tiles.shape) < 2:
         return get_psnr(hvs_tiles.mean(dim=-1), 1.0), get_psnr(hvsm_tiles.mean(dim=-1), 1.0)

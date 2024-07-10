@@ -160,6 +160,14 @@ from psnr_hvsm import psnr_hvs_hvsm
 # ...
 ```
 
+#### Note on gradients
+
+Some operations in the calculation of the HVS-M MSE lead to problems with the
+gradient and therefore a parameter called `masking_epsilon` (defaulting to 0.0)
+has been added to the PyTorch versions of `hvs_hvsm_mse_tiles`, `hvs_hvsm_mse`
+and `psnr_hvs_hvsm`. Set it to a small value (determined by your own
+experimentation) if you need the result of HVS-M for gradient descent.
+
 ### Computing metrics for the TID2013 dataset
 
 If you have a copy of the
