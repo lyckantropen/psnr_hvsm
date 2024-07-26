@@ -10,7 +10,7 @@ perception with backends in NumPy, PyTorch and C++.
 
 This is an implementation of the PSNR-HVS, PSNR-HVS-M, PSNR-HA and PSNR-HMA
 metrics developed by
-[Nikolay Ponomarenko](http://www.ponomarenko.info/psnrhvsm).
+[Nikolay Ponomarenko](http://www.ponomarenko.info/psnrhvsm.htm).
 
 The values produced by this library have been cross-checked against the results
 within the
