@@ -13,7 +13,7 @@ COEF3 = 0.04
 COEF4 = 0.5
 
 
-def ha_hma_mse(x: torch.Tensor, y: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor]:
+def ha_hma_mse(x: torch.Tensor, y: torch.Tensor, masking_epsilon: float = 0.0) -> Tuple[torch.Tensor, torch.Tensor]:
     """Compute the contrast-corrected HVS and HVS-M MSE between two single-channel, normalized images."""
     if isinstance(x, np.ndarray):
         x = torch.tensor(x)
@@ -33,8 +33,8 @@ def ha_hma_mse(x: torch.Tensor, y: torch.Tensor) -> Tuple[torch.Tensor, torch.Te
 
     d = cm + (c - cm) * popr
 
-    m1, n1 = hvs_hvsm_mse(x, c)
-    m2, n2 = hvs_hvsm_mse(x, d)
+    m1, n1 = hvs_hvsm_mse(x, c, masking_epsilon=masking_epsilon)
+    m2, n2 = hvs_hvsm_mse(x, d, masking_epsilon=masking_epsilon)
 
     if m1 > m2:
         if popr < 1:
@@ -55,14 +55,14 @@ def ha_hma_mse(x: torch.Tensor, y: torch.Tensor) -> Tuple[torch.Tensor, torch.Te
     return m, n
 
 
-def psnr_ha_hma(x: torch.Tensor, y: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor]:
+def psnr_ha_hma(x: torch.Tensor, y: torch.Tensor, masking_epsilon: float = 0.0) -> Tuple[torch.Tensor, torch.Tensor]:
     """Compute the PSNR-HA and PSNR-HMA metrics for a pair of normalized single-channel images x and y."""
     if isinstance(x, np.ndarray):
         x = torch.tensor(x)
     if isinstance(y, np.ndarray):
         y = torch.tensor(y)
 
-    m, n = ha_hma_mse(x, y)
+    m, n = ha_hma_mse(x, y, masking_epsilon=masking_epsilon)
 
     psnr_ha = get_psnr(m, 1)
     psnr_hma = get_psnr(n, 1)
@@ -75,8 +75,9 @@ def psnr_ha_hma_color(xy: torch.Tensor,
                       xcr: torch.Tensor,
                       yy: torch.Tensor,
                       ycb: torch.Tensor,
-                      ycr: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor]:
-    """Compute the PSNR-HA and PSNR-HMA metrics between two RGB normalized images."""
+                      ycr: torch.Tensor,
+                      masking_epsilon: float = 0.0) -> Tuple[torch.Tensor, torch.Tensor]:
+    """Compute the PSNR-HA and PSNR-HMA metrics between two YCbCr images."""
     if isinstance(xy, np.ndarray):
         xy = torch.tensor(xy)
     if isinstance(xcb, np.ndarray):
@@ -90,9 +91,9 @@ def psnr_ha_hma_color(xy: torch.Tensor,
     if isinstance(ycr, np.ndarray):
         ycr = torch.tensor(ycr)
 
-    my, ny = ha_hma_mse(xy, yy)
-    mcb, ncb = ha_hma_mse(xcb, ycb)
-    mcr, ncr = ha_hma_mse(xcr, ycr)
+    my, ny = ha_hma_mse(xy, yy, masking_epsilon=masking_epsilon)
+    mcb, ncb = ha_hma_mse(xcb, ycb, masking_epsilon=masking_epsilon)
+    mcr, ncr = ha_hma_mse(xcr, ycr, masking_epsilon=masking_epsilon)
 
     m = (my + COEF4 * (mcb + mcr)) / 2
     n = (ny + COEF4 * (ncb + ncr)) / 2
