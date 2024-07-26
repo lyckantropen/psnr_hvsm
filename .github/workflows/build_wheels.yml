@@ -26,6 +26,7 @@ jobs:
           CIBW_BEFORE_ALL_LINUX: bash ./linux-deps.sh
           CIBW_BEFORE_ALL_WINDOWS: pwsh ./windows-deps.ps1
           CIBW_ENVIRONMENT_WINDOWS: CC=clang CXX=clang++
+          CIBW_ENVIRONMENT: PIP_EXTRA_INDEX_URL=https://download.pytorch.org/whl/cpu
           CIBW_MANYLINUX_X86_64_IMAGE: manylinux2014
           CIBW_TEST_EXTRAS: tests,torch
           CIBW_TEST_COMMAND: "pytest {project}/tests"
