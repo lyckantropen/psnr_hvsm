@@ -110,6 +110,36 @@ print(psnr_hvs, psnr_hvsm)
 If you need to measure PSNR-HVS and PSNR-HVS-M on an RGB image, you need to
 convert it to an YUV colorspace and pass in only the luma component.
 
+### BT.601 conversion precision
+
+When 8-bit RGB input is converted to the BT.601 YCbCr colorspace, the luma
+and both chroma components are by default rounded to 8-bit code values. This
+quantisation matches the 8-bit YCbCr pipeline of the reference implementation
+and is what reproduces the published TID2013 reference values this library is
+cross-checked against, which is why it remains the default. Every metric
+output computed with the default is bit-identical to previous releases.
+
+If you are porting the metrics and want to compare against a non-quantised
+reference, pass `precision='float'` to compute the same BT.601 matrix
+arithmetic without the rounding step:
+
+```python
+from psnr_hvsm import bt601ycbcr
+from psnr_hvsm.compute_all_metrics import compute_all_metrics
+
+image1_y, image1_cb, image1_cr = bt601ycbcr(image1_uint8, precision='float')
+
+psnr_hvs, psnr_hvsm, psnr_ha, psnr_hma, psnr = compute_all_metrics(
+    image1_uint8, image2_uint8, precision='float')
+```
+
+The `precision` option (`'8-bit'` default, `'float'`) is accepted by
+`bt601ycbcr` in both the NumPy and PyTorch backends with identical
+semantics, and by the `compute_all_metrics` entry point, which threads it
+through every metric that depends on the BT.601 conversion. The option is
+also accepted by `bt601ypbpr` for symmetry, where it has no effect because
+YPbPr is never rounded.
+
 ### PyTorch support
 
 The PyTorch backend can be used for use with gradient descent algorithms and
