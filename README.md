@@ -59,6 +59,26 @@ only that far, so on Python 3.13 and newer the runtime resolves NumPy 2.x.
 PyPI publishes PyTorch wheels for Python 3.10-3.14 only, so the `torch` extra
 is unavailable on 3.15 and the PyTorch backend cannot be installed there.
 
+### MSVC runtime on Windows
+
+The Windows wheels, like the Linux ones, do not bundle the C++ runtime: CMake
+installs only the FFTW DLLs into the wheel. On CPython 3.10-3.14 the package
+therefore declares `msvc-runtime` for Windows, which pip installs into the
+environment along with the package, so no system-wide Visual C++ runtime is
+required. The MSVC or clang toolchain supplies the CRT when the extension is
+compiled, which is why it is not a build requirement.
+
+On CPython 3.15 the requirement is not declared. `msvc-runtime` publishes its
+wheels per CPython ABI and has no cp315 wheel, so asking for it there would
+leave the newest supported interpreter uninstallable. A CPython install from
+python.org brings the C runtime it was built with (its installer updates the
+C Runtime Library on the machine when one is needed), so 3.15 works without
+anything extra. If an import nevertheless fails with a missing
+`vcruntime140.dll` or `msvcp140.dll` - a possibility with the minimal layouts
+such as the embeddable package, MSYS2 or NuGet-based installs - install the
+Microsoft Visual C++ 2015-2022 redistributable for your architecture, or use
+CPython 3.10-3.14, where the requirement is declared.
+
 ## Usage
 
 ### Command line

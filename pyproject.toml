@@ -2,8 +2,9 @@
 requires = [
     "cmake>=3.21",
     "scikit-build-core",
-    "numpy >= 2.0",
-    'msvc-runtime >= 14; platform_system == "Windows"'
+    "numpy >= 2.0"
+    # msvc-runtime is deliberately absent: see the comment on the runtime
+    # dependency below.
 ]
 build-backend = "scikit_build_core.build"
 
@@ -34,7 +35,12 @@ requires-python = ">= 3.10, <4"
 dependencies = [
     "numpy >= 1.19",
     "scipy >= 1.4",
-    'msvc-runtime >= 14; platform_system == "Windows"',
+    # The MSVC runtime is a runtime concern only: the compiler supplies the CRT
+    # when building, and CMake ships just the FFTW DLLs in the wheel. Its wheels
+    # are tagged per CPython ABI and stop at 3.14, so the marker must exclude
+    # 3.15 - asking for it there makes the metadata uninstallable on the newest
+    # supported interpreter.
+    'msvc-runtime >= 14; platform_system == "Windows" and python_version < "3.15"',
 ]
 
 [project.readme]
