@@ -3,7 +3,8 @@ channels:
   - nodefaults
   - conda-forge
 dependencies:
-  - numpy>=1.18,<2
+  # The runtime supports NumPy 1.x and 2.x; CI covers both regimes.
+  - numpy>=1.19
   - xtensor-python
   - xtensor
   - xsimd
