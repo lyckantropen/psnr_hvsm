@@ -6,6 +6,77 @@ permissions:
   contents: read
 
 jobs:
+  test_matrix:
+    name: Test CPython ${{ matrix.python }} / NumPy ${{ matrix.numpy }} / PyTorch ${{ matrix.torch }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      # NumPy 1.26.x is the final NumPy 1 release and has wheels only through
+      # CPython 3.12. PyTorch's PyPI wheels currently stop at CPython 3.14.
+      # Therefore NumPy 1.x on 3.13-3.15 and PyTorch on 3.15 are impossible
+      # upstream cells, rather than silently omitted supported combinations.
+      matrix:
+        include:
+          - python: "3.10"
+            numpy: "1.26.4"
+            scipy: "1.15.3"
+            torch: present
+            install_torch: true
+          - python: "3.10"
+            numpy: "1.26.4"
+            scipy: "1.15.3"
+            torch: absent
+            install_torch: false
+          - python: "3.10"
+            numpy: "2.2.6"
+            scipy: "1.15.3"
+            torch: present
+            install_torch: true
+          - python: "3.10"
+            numpy: "2.2.6"
+            scipy: "1.15.3"
+            torch: absent
+            install_torch: false
+          # 3.14 is the newest interpreter with a PyPI PyTorch wheel.
+          - python: "3.14"
+            numpy: "2.5.4"
+            scipy: "1.18.1"
+            torch: present
+            install_torch: true
+          # Keep the newest supported interpreter on its final CI-provided release.
+          - python: "3.15"
+            numpy: "2.5.4"
+            scipy: "1.18.1"
+            torch: absent
+            install_torch: false
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: ${{ matrix.python }}
+
+      - name: Install package, test dependencies, and matrix NumPy/SciPy versions
+        run: >-
+          python -m pip install -e ".[tests]"
+          "numpy==${{ matrix.numpy }}"
+          "scipy==${{ matrix.scipy }}"
+
+      - name: Install CPU-only PyTorch
+        if: matrix.install_torch
+        # Use the CPU index deliberately: PyPI's Linux torch wheels pull the full
+        # CUDA dependency set. PyPI remains available for torch-dct and dependencies.
+        run: >-
+          python -m pip install
+          --index-url https://download.pytorch.org/whl/cpu
+          --extra-index-url https://pypi.org/simple
+          "torch==2.14.1+cpu"
+          "torch-dct>=0.1.6"
+
+      - name: Run full test suite
+        run: python -m pytest
+
   build_wheels:
     name: Build ${{ matrix.artifact }} wheels
     runs-on: ${{ matrix.os }}
