@@ -21,7 +21,7 @@ FetchContent_MakeAvailable(fftw3)
 
 # Pinned versions of the header-only C++ dependency stack, fetched when the
 # dependencies are not installed. The set is mutually compatible:
-# xtensor-python 0.27.0 requires xtensor >= 0.25.0 and pybind11 >= 2.6.1, and
+# xtensor-python 0.27.0 requires xtensor >= 0.25.0 and pybind11 >= 2.6.1, < 3, and
 # xtensor 0.25.0 requires xtl >= 0.7.5 and xsimd >= 11.0.0. All of them keep
 # the flat xtensor/xtensor.hpp umbrella header this project's sources include.
 set(PSNR_HVSM_PYBIND11_VERSION v2.13.6)
@@ -31,7 +31,7 @@ set(PSNR_HVSM_XTENSOR_VERSION 0.25.0)
 set(PSNR_HVSM_XTENSOR_PYTHON_VERSION 0.27.0)
 
 find_package(Python3 COMPONENTS Interpreter NumPy Development.Module REQUIRED)
-find_package(pybind11 QUIET)
+find_package(pybind11 2.6.1...<3 QUIET)
 find_package(xtensor QUIET)
 find_package(xtensor-python QUIET)
 

@@ -26,7 +26,9 @@ parser.add_argument('--hma-luma', action='store_true',
                     help='Force calculation of PSNR-HA and PSNR-HMA using only the luma channel even if the input is in color.')
 parser.add_argument('--max-value', type=float, default=None, help='Maximum pixel intensity value (if image is not 8bpc)')
 parser.add_argument('--precision', choices=['8-bit', 'float'], default='8-bit',
-                    help='BT.601 conversion precision for 8-bit color inputs (default: 8-bit).')
+                    help=('BT.601 precision for 8-bit color conversion (default: 8-bit); '
+                          'JSON records the request, applied where conversion runs '
+                          '(no effect on grayscale/non-uint8 input).'))
 
 args = parser.parse_args()
 

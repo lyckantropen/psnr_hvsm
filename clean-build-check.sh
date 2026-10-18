@@ -19,8 +19,8 @@
 # Environment variables:
 #   PYTHON       interpreter used to create the virtualenv (default: python3)
 #   WITH_TORCH   install PyTorch before running the suite (default: 1);
-#                set to 0 where PyTorch publishes no wheels, the
-#                torch-parameterised tests are then deselected
+#                set to 0 where PyTorch is unavailable; torch tests are
+#                collected and skipped by their optional-dependency guards
 #   REQUIRE_CMAKE4  fail unless the CMake on PATH is at least 4.0 (default: 1)
 #   KEEP         keep the scratch directory for inspection (default: 0)
 
@@ -162,11 +162,7 @@ assert "cpp" in psnr_hvsm.BACKENDS, "the C++ backend did not build or did not im
 PY
 
 step "running the test suite"
-pytest_args=("$REPO/tests")
-if [ "$WITH_TORCH" != 1 ]; then
-  pytest_args+=(-k "not torch")
-fi
-"$WORK/venv/bin/python" -m pytest "${pytest_args[@]}" || fail "the test suite failed"
+"$WORK/venv/bin/python" -m pytest "$REPO/tests" || fail "the test suite failed"
 
 step "checking that installed dependencies are still discovered"
 # The conda development environment supplies pybind11, xtl, xsimd, xtensor and
@@ -175,6 +171,18 @@ step "checking that installed dependencies are still discovered"
 # CMakeLists looks for under a fake HOME, and configure again: CMake must
 # discover them instead of fetching anything.
 CONDA_PREFIX="${WORK}/fake-home/.conda/envs/psnr_hvsm-dev"
+cmake \
+  -S "${WORK}/build/_deps/pybind11-src" \
+  -B "${WORK}/build-pybind11-install" \
+  -DPYBIND11_INSTALL=ON \
+  -DPYBIND11_TEST=OFF \
+  -DPython_EXECUTABLE="$WORK/venv/bin/python" \
+  >"$WORK/configure-pybind11-install.log" 2>&1 || {
+    tail -40 "$WORK/configure-pybind11-install.log"
+    fail "configuring the fetched pybind11 for installation failed"
+  }
+cmake --install "${WORK}/build-pybind11-install" --prefix "$CONDA_PREFIX" >/dev/null
+
 for dependency in xtl xsimd xtensor xtensor-python; do
   cmake --install "${WORK}/build/_deps/${dependency}-build" --prefix "$CONDA_PREFIX" >/dev/null
 done
