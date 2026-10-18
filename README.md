@@ -225,8 +225,19 @@ python -m psnr_hvsm.tid2013_metrics D:\tid2013\ .\tid2013_results\
 - [xtensor](https://github.com/xtensor-stack/xtensor)
 - [xtensor-python](https://github.com/xtensor-stack/xtensor-python)
 
-FFTW3 is automatically resolved by CMake and the rest can be installed by
-creating a `conda` environment using the provided YAML file:
+FFTW3 is always fetched by CMake at the pinned release listed in
+`psnr_hvsm/CMakeLists.txt`. The remaining, header-only dependencies are
+installed at pinned, mutually compatible versions when they are not already
+installed, so a C++ compiler, a current CMake and pip or uv are enough to build
+from source:
+
+```bash
+pip install --upgrade -r requirements-build.txt
+pip wheel --no-deps -w dist .
+```
+
+If you prefer a `conda` environment, create the provided one and CMake will
+discover the dependencies from it instead of fetching them:
 
 ```bash
 conda env create -f psnr_hvsm-dev.yml
@@ -244,7 +255,16 @@ pip install --upgrade -r requirements.txt
 
 ```bash
 pip install --upgrade -r requirements-build.txt
-python setup.py bdist_wheel
+python -m build --wheel
+```
+
+### Verifying a clean source build
+
+To build from source in a scratch virtualenv that has no conda environment for
+CMake to discover and to run the test suite against the result:
+
+```bash
+./clean-build-check.sh
 ```
 
 ### Running tests on different versions of Python using tox

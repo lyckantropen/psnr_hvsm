@@ -27,4 +27,8 @@ endif()
 
 project(${SKBUILD_PROJECT_NAME} LANGUAGES CXX)
 
+# The extension is a Python module, so everything linked into it, including the
+# fetched FFTW, has to be built position independent.
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+
 add_subdirectory(psnr_hvsm)
