@@ -6,6 +6,8 @@ from pathlib import Path
 
 from numpy.testing import assert_almost_equal
 
+from conftest import FLOAT_PRECISION_METRICS
+
 test_dir = Path(__file__).parent.absolute()
 original = (test_dir / 'kodim01_c.png').as_posix()
 distorted = (test_dir / 'kodim01_c_contrast.png').as_posix()
@@ -17,7 +19,7 @@ default_values = {
     'psnr_hvsm': 15.964741058498255,
     'psnr_ha': 25.953298236404656,
     'psnr_hma': 26.46149718211291,
-    'psnr': 18.04694023790249,
+    'psnr': FLOAT_PRECISION_METRICS['psnr'],
 }
 
 
@@ -54,10 +56,8 @@ def test_cli_float_precision_json_records_float():
     document = json.loads(parse_last_stdout_line(stdout))
     assert document['precision'] == 'float'
     # values pinned by the library-level #15 tests (exact rational derivation)
-    assert_almost_equal(document['psnr_hvs'], 15.61038575899666, decimal=10)
-    assert_almost_equal(document['psnr_hvsm'], 15.966472675229104, decimal=10)
-    assert_almost_equal(document['psnr_ha'], 25.96774318769922, decimal=10)
-    assert_almost_equal(document['psnr_hma'], 26.467399309332656, decimal=10)
+    for key in ('psnr_hvs', 'psnr_hvsm', 'psnr_ha', 'psnr_hma'):
+        assert_almost_equal(document[key], FLOAT_PRECISION_METRICS[key], decimal=10)
     # plain PSNR does not depend on the BT.601 conversion, so it must match the
     # default run exactly. Compare against a default run of this environment
     # rather than the literal above: plain PSNR is unaffected by the conversion

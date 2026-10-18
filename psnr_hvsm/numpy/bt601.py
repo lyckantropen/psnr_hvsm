@@ -3,7 +3,7 @@
 from typing import Tuple
 import numpy as np
 
-PRECISIONS = ('8-bit', 'float')
+from . import validate_precision
 
 
 def bt601ycbcr(a: np.ndarray, precision: str = '8-bit') -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
@@ -19,8 +19,7 @@ def bt601ycbcr(a: np.ndarray, precision: str = '8-bit') -> Tuple[np.ndarray, np.
     - ``'float'`` keeps the full floating-point result of the same matrix
       arithmetic, without the rounding step.
     """
-    if precision not in PRECISIONS:
-        raise ValueError("precision must be one of %r, got %r" % (PRECISIONS, precision))
+    validate_precision(precision)
     r, g, b = np.moveaxis(a, 2, 0).astype(np.float64)
     y = 16 + 65.481 * r / 255 + 128.553 * g / 255 + 24.966 * b / 255
     cb = 128 - 37.797 * r / 255 - 74.203 * g / 255 + 112.0 * b / 255
@@ -36,15 +35,8 @@ def bt601ycbcr(a: np.ndarray, precision: str = '8-bit') -> Tuple[np.ndarray, np.
     return y, cb, cr
 
 
-def bt601ypbpr(a: np.ndarray, precision: str = '8-bit') -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
-    """
-    Convert a normalized RGB image into YPbPr (analog YCbCr).
-
-    The `precision` option is accepted for symmetry with `bt601ycbcr`; YPbPr
-    is never rounded, so it has no effect on the result.
-    """
-    if precision not in PRECISIONS:
-        raise ValueError("precision must be one of %r, got %r" % (PRECISIONS, precision))
+def bt601ypbpr(a: np.ndarray) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+    """Convert a normalized RGB image into YPbPr (analog YCbCr)."""
     r, g, b = np.moveaxis(a, 2, 0).astype(np.float64)
     kb = 0.114
     kr = 0.299

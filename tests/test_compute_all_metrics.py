@@ -8,6 +8,7 @@ import pytest
 from imageio.v2 import imread
 from numpy.testing import assert_almost_equal
 
+from conftest import FLOAT_PRECISION_METRICS
 from psnr_hvsm.compute_all_metrics import compute_all_metrics
 
 test_dir = Path(__file__).parent.absolute()
@@ -32,12 +33,10 @@ def test_compute_all_metrics_float_precision():
 
     # expected values derived with an exact rational BT.601 conversion (no rounding)
     # feeding the numpy metric functions, independently of the implementation
-    assert_almost_equal(metrics[0], 15.61038575899666, decimal=10)
-    assert_almost_equal(metrics[1], 15.966472675229104, decimal=10)
-    assert_almost_equal(metrics[2], 25.96774318769922, decimal=10)
-    assert_almost_equal(metrics[3], 26.467399309332656, decimal=10)
+    for metric, name in zip(metrics[:4], ('psnr_hvs', 'psnr_hvsm', 'psnr_ha', 'psnr_hma')):
+        assert_almost_equal(metric, FLOAT_PRECISION_METRICS[name], decimal=10)
     # plain PSNR does not depend on the BT.601 conversion
-    assert_almost_equal(metrics[4], 18.04694023790249, decimal=12)
+    assert_almost_equal(metrics[4], FLOAT_PRECISION_METRICS['psnr'], decimal=12)
 
 
 def test_compute_all_metrics_precision_divergence():
@@ -84,11 +83,11 @@ def _compute_in_torch_backend(precision):
 
 def test_compute_all_metrics_torch_backend_agrees():
     pytest.importorskip('torch_dct')
-    for precision, decimals in [('8-bit', 3), ('float', 3)]:
+    for precision in ('8-bit', 'float'):
         torch_metrics = _compute_in_torch_backend(precision)
         numpy_metrics = compute_all_metrics(org, tst, precision=precision)
 
         for torch_metric, numpy_metric in zip(torch_metrics, numpy_metrics):
             # the torch backend converts uint8 input in its default dtype
             # (float32), so agreement is asserted within float32 noise
-            assert_almost_equal(torch_metric, numpy_metric, decimal=decimals)
+            assert_almost_equal(torch_metric, numpy_metric, decimal=3)

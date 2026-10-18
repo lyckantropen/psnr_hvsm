@@ -51,8 +51,9 @@ pip install psnr_hvsm[torch]
 
 The NumPy requirement carries no upper bound. The compiled extension is built
 against NumPy 2 headers with a fixed backward-compatible ABI target, so a
-single wheel serves both NumPy 1.x and NumPy 2.x runtimes and installing the
-package never forces a NumPy downgrade or upgrade. Note that NumPy 1.x itself
+single wheel serves both NumPy 1.x and NumPy 2.x runtimes. Installing the
+package never forces a downgrade from NumPy 2.x, and its runtime floor is
+`numpy>=1.19`. Note that NumPy 1.x itself
 is only installable on Python 3.10-3.12: the last 1.x release ships wheels
 only that far, so on Python 3.13 and newer the runtime resolves NumPy 2.x.
 
@@ -61,8 +62,9 @@ is unavailable on 3.15 and the PyTorch backend cannot be installed there.
 
 ### MSVC runtime on Windows
 
-The Windows wheels, like the Linux ones, do not bundle the C++ runtime: CMake
-installs only the FFTW DLLs into the wheel. On CPython 3.10-3.14 the package
+Linux manylinux wheels bundle `libstdc++` via auditwheel. The Windows wheels do
+not bundle the MSVC C++ runtime: CMake installs only the FFTW DLLs into the
+wheel. On CPython 3.10-3.14 the package
 therefore declares `msvc-runtime` for Windows, which pip installs into the
 environment along with the package, so no system-wide Visual C++ runtime is
 required. The MSVC or clang toolchain supplies the CRT when the extension is
@@ -168,14 +170,16 @@ psnr_hvs, psnr_hvsm, psnr_ha, psnr_hma, psnr = compute_all_metrics(
 The `precision` option (`'8-bit'` default, `'float'`) is accepted by
 `bt601ycbcr` in both the NumPy and PyTorch backends with identical
 semantics, and by the `compute_all_metrics` entry point, which threads it
-through every metric that depends on the BT.601 conversion. The option is
-also accepted by `bt601ypbpr` for symmetry, where it has no effect because
-YPbPr is never rounded.
+through every metric that depends on the quantised 8-bit BT.601 YCbCr
+conversion. It applies only when that conversion runs. For grayscale input or
+non-uint8 color input, it has no effect.
 
 On the command line the same choice is exposed as
 `--precision {8-bit,float}` on `python -m psnr_hvsm`, and the JSON output
-(`--json`) records which precision was used, so batch results are
-self-describing.
+(`--json`) records the requested precision, so batch results are
+self-describing. The requested precision is applied wherever the quantised
+conversion runs; for grayscale or non-uint8 color input, the field has no
+effect.
 
 ### PyTorch support
 

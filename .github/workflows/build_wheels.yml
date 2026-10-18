@@ -129,9 +129,9 @@ jobs:
             cmake.define.CMAKE_DISABLE_FIND_PACKAGE_xtensor=TRUE
             cmake.define.CMAKE_DISABLE_FIND_PACKAGE_xtensor-python=TRUE
           CIBW_ENVIRONMENT_WINDOWS: CC=clang CXX=clang++
-          # PyPI has no torch wheel for CPython 3.15. That matrix slice installs
-          # only the tests extra, and the suite's torch guards skip 15 tests;
-          # CPython 3.10-3.14 install and exercise the torch extra normally.
+          # Validating the torch backend on CPython 3.15 is out of scope for the
+          # spec. This cell installs only the tests extra; torch tests skip.
+          # The CPU index does publish cp315 torch wheels, but this matrix omits them.
           CIBW_TEST_EXTRAS: ${{ matrix.test_extras }}
           CIBW_TEST_COMMAND: "python -m pytest {project}/tests"
 
