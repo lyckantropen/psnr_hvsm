@@ -47,6 +47,18 @@ With PyTorch support:
 pip install psnr_hvsm[torch]
 ```
 
+### NumPy and PyTorch support policy
+
+The NumPy requirement carries no upper bound. The compiled extension is built
+against NumPy 2 headers with a fixed backward-compatible ABI target, so a
+single wheel serves both NumPy 1.x and NumPy 2.x runtimes and installing the
+package never forces a NumPy downgrade or upgrade. Note that NumPy 1.x itself
+is only installable on Python 3.10-3.12: the last 1.x release ships wheels
+only that far, so on Python 3.13 and newer the runtime resolves NumPy 2.x.
+
+PyPI publishes PyTorch wheels for Python 3.10-3.14 only, so the `torch` extra
+is unavailable on 3.15 and the PyTorch backend cannot be installed there.
+
 ## Usage
 
 ### Command line
@@ -139,6 +151,11 @@ semantics, and by the `compute_all_metrics` entry point, which threads it
 through every metric that depends on the BT.601 conversion. The option is
 also accepted by `bt601ypbpr` for symmetry, where it has no effect because
 YPbPr is never rounded.
+
+On the command line the same choice is exposed as
+`--precision {8-bit,float}` on `python -m psnr_hvsm`, and the JSON output
+(`--json`) records which precision was used, so batch results are
+self-describing.
 
 ### PyTorch support
 
