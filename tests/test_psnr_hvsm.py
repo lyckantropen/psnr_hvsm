@@ -4,6 +4,7 @@ import pytest
 from imageio.v2 import imread
 from numpy.testing import assert_almost_equal
 
+from conftest import torch_param
 from psnr_hvsm._psnr_hvsm import hvs_hvsm_mse_tiles as hvs_hvsm_mse_tiles_cpp
 from psnr_hvsm._psnr_hvsm import psnr_hvs_hvsm as psnr_hvs_hvsm_cpp
 from psnr_hvsm.numpy import hvs_hvsm_mse_tiles as hvs_hvsm_mse_tiles_np
@@ -12,7 +13,7 @@ try:
     from psnr_hvsm.torch import hvs_hvsm_mse_tiles as hvs_hvsm_mse_tiles_pt
     from psnr_hvsm.torch import psnr_hvs_hvsm as psnr_hvs_hvsm_pt
 except ModuleNotFoundError as error:
-    if error.name != 'torch':
+    if error.name not in ('torch', 'torch_dct'):
         raise
     hvs_hvsm_mse_tiles_pt = None
     psnr_hvs_hvsm_pt = None
@@ -25,7 +26,7 @@ tst = imread((test_dir / 'baboon_msk.png').as_posix(), mode='L').astype(float) /
 @pytest.mark.parametrize('psnr_hvs_hvsm_impl', [
     pytest.param(psnr_hvs_hvsm_cpp, id='cpp'),
     pytest.param(psnr_hvs_hvsm_np, id='numpy'),
-    pytest.param(psnr_hvs_hvsm_pt, id='torch', marks=pytest.mark.skipif(psnr_hvs_hvsm_pt is None, reason='PyTorch is not installed')),
+    torch_param(psnr_hvs_hvsm_pt),
 ])
 def test_psnr_hvs_hvsm(psnr_hvs_hvsm_impl):
     phvs, phvsm = psnr_hvs_hvsm_impl(org, tst)
@@ -37,7 +38,7 @@ def test_psnr_hvs_hvsm(psnr_hvs_hvsm_impl):
 @pytest.mark.parametrize('hvs_hvsm_mse_tiles_impl', [
     pytest.param(hvs_hvsm_mse_tiles_cpp, id='cpp'),
     pytest.param(hvs_hvsm_mse_tiles_np, id='numpy'),
-    pytest.param(hvs_hvsm_mse_tiles_pt, id='torch', marks=pytest.mark.skipif(hvs_hvsm_mse_tiles_pt is None, reason='PyTorch is not installed')),
+    torch_param(hvs_hvsm_mse_tiles_pt),
 ])
 def test_hvs_hvsm_mse_tiles(hvs_hvsm_mse_tiles_impl):
     hvs_tiles, hvsm_tiles = hvs_hvsm_mse_tiles_impl(org, tst)
