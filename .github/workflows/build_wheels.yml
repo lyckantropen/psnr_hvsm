@@ -1,55 +1,90 @@
-name: Build
+name: Build wheels
 
 on: [push, pull_request]
 
+permissions:
+  contents: read
+
 jobs:
   build_wheels:
-    name: Build wheels on ${{ matrix.os }}
+    name: Build ${{ matrix.artifact }} wheels
     runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false
       matrix:
-        os: [ubuntu-20.04, windows-2019]
+        include:
+          - os: ubuntu-latest
+            artifact: manylinux-x86_64-cp310-cp314
+            build: "cp3{10,11,12,13,14}-*"
+            test_extras: tests,torch
+          - os: ubuntu-latest
+            artifact: manylinux-x86_64-cp315
+            build: "cp315-*"
+            test_extras: tests
+          - os: windows-latest
+            artifact: win-amd64-cp310-cp314
+            build: "cp3{10,11,12,13,14}-*"
+            test_extras: tests,torch
+          - os: windows-latest
+            artifact: win-amd64-cp315
+            build: "cp315-*"
+            test_extras: tests
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-python@v3
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.x"
 
       - name: Install cibuildwheel
-        run: python -m pip install cibuildwheel==2.16.2
+        run: python -m pip install cibuildwheel==4.3.1
 
-      - name: Build wheels
+      - name: Build and test wheels
         run: python -m cibuildwheel --output-dir wheelhouse
         env:
-          CIBW_BUILD: "cp3{7,8,9,10,11,12}-*"
-          CIBW_SKIP: "*-win32 *-manylinux_i686 *-musllinux*"
-          CIBW_BEFORE_ALL_LINUX: bash ./linux-deps.sh
-          CIBW_BEFORE_ALL_WINDOWS: pwsh ./windows-deps.ps1
+          CIBW_BUILD: ${{ matrix.build }}
+          # Keep the supported platform set explicit even where CIBW_BUILD and
+          # auto64 already exclude these identifiers: no 32-bit, musl, or
+          # free-threaded wheels are part of this release.
+          CIBW_SKIP: "*-win32 *-*linux_i686 *-musllinux_* cp3??t-*"
+          CIBW_ARCHS: auto64
+          CIBW_MANYLINUX_X86_64_IMAGE: manylinux_2_28
+          # CI forces the pinned fallback dependency stack instead of accepting
+          # a version-agnostic system pybind11 (possibly 3.x). These settings
+          # are CI-only, so normal conda development builds retain discovery.
+          CIBW_CONFIG_SETTINGS: >-
+            cmake.define.CMAKE_DISABLE_FIND_PACKAGE_pybind11=TRUE
+            cmake.define.CMAKE_DISABLE_FIND_PACKAGE_xtensor=TRUE
+            cmake.define.CMAKE_DISABLE_FIND_PACKAGE_xtensor-python=TRUE
           CIBW_ENVIRONMENT_WINDOWS: CC=clang CXX=clang++
-          CIBW_ENVIRONMENT: PIP_EXTRA_INDEX_URL=https://download.pytorch.org/whl/cpu
-          CIBW_MANYLINUX_X86_64_IMAGE: manylinux2014
-          CIBW_TEST_EXTRAS: tests,torch
-          CIBW_TEST_COMMAND: "pytest {project}/tests"
+          # PyPI has no torch wheel for CPython 3.15. That matrix slice installs
+          # only the tests extra, and the suite's torch guards skip 15 tests;
+          # CPython 3.10-3.14 install and exercise the torch extra normally.
+          CIBW_TEST_EXTRAS: ${{ matrix.test_extras }}
+          CIBW_TEST_COMMAND: "python -m pytest {project}/tests"
 
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v7
         with:
-          path: ./wheelhouse/*.whl
+          name: wheels-${{ matrix.artifact }}
+          path: wheelhouse/*.whl
+          if-no-files-found: error
 
   upload_pypi:
-    needs: [build_wheels]
+    name: Publish wheels to PyPI
+    needs: build_wheels
     runs-on: ubuntu-latest
-    # upload to PyPI on every tag starting with 'v'
-    if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags/v')
-    # alternatively, to publish when a GitHub Release is created, use the following rule:
-    # if: github.event_name == 'release' && github.event.action == 'published'
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
     steps:
-      - uses: actions/download-artifact@v2
+      - uses: actions/download-artifact@v8
         with:
-          name: artifact
+          pattern: wheels-*
           path: dist
+          merge-multiple: true
 
-      - uses: pypa/gh-action-pypi-publish@master
+      - uses: pypa/gh-action-pypi-publish@v1.14.2
         with:
           user: __token__
           password: ${{ secrets.pypi_token }}
-          repository_url: https://upload.pypi.org/legacy/
+          repository-url: https://upload.pypi.org/legacy/
+          packages-dir: dist
