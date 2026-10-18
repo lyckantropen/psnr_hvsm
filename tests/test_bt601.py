@@ -2,13 +2,14 @@ import numpy as np
 import pytest
 from numpy.testing import assert_almost_equal
 
+from conftest import torch_param
 from psnr_hvsm.numpy import bt601ycbcr as bt601ycbcr_np
 from psnr_hvsm.numpy import bt601ypbpr as bt601ypbpr_np
 try:
     from psnr_hvsm.torch import bt601ycbcr as bt601ycbcr_pt
     from psnr_hvsm.torch import bt601ypbpr as bt601ypbpr_pt
 except ModuleNotFoundError as error:
-    if error.name != 'torch':
+    if error.name not in ('torch', 'torch_dct'):
         raise
     bt601ycbcr_pt = None
     bt601ypbpr_pt = None
@@ -16,7 +17,7 @@ except ModuleNotFoundError as error:
 
 @pytest.mark.parametrize('bt601ycbcr_impl', [
     pytest.param(bt601ycbcr_np, id='numpy'),
-    pytest.param(bt601ycbcr_pt, id='torch', marks=pytest.mark.skipif(bt601ycbcr_pt is None, reason='PyTorch is not installed')),
+    torch_param(bt601ycbcr_pt),
 ])
 def test_bt601ycbcr(bt601ycbcr_impl):
     x = np.array([110, 4, 92], dtype=float).reshape(1, 1, 3)
@@ -30,7 +31,7 @@ def test_bt601ycbcr(bt601ycbcr_impl):
 
 @pytest.mark.parametrize('bt601ypbpr_impl', [
     pytest.param(bt601ypbpr_np, id='numpy'),
-    pytest.param(bt601ypbpr_pt, id='torch', marks=pytest.mark.skipif(bt601ypbpr_pt is None, reason='PyTorch is not installed')),
+    torch_param(bt601ypbpr_pt),
 ])
 def test_bt601ypbpr(bt601ypbpr_impl):
     x = np.array([110, 4, 92], dtype=float).reshape(1, 1, 3) / 255
@@ -42,9 +43,20 @@ def test_bt601ypbpr(bt601ypbpr_impl):
     assert_almost_equal(pr.item(), 6.797823837095466e-01)  # value generated using rgb2ycbcr in octave, then renormalised to [0,1]
 
 
+@pytest.mark.parametrize('bt601ypbpr_impl', [
+    pytest.param(bt601ypbpr_np, id='numpy'),
+    torch_param(bt601ypbpr_pt),
+])
+def test_bt601ypbpr_does_not_accept_precision(bt601ypbpr_impl):
+    x = np.array([110, 4, 92], dtype=float).reshape(1, 1, 3) / 255
+
+    with pytest.raises(TypeError):
+        bt601ypbpr_impl(x, precision='float')
+
+
 @pytest.mark.parametrize('bt601ycbcr_impl', [
     pytest.param(bt601ycbcr_np, id='numpy'),
-    pytest.param(bt601ycbcr_pt, id='torch', marks=pytest.mark.skipif(bt601ycbcr_pt is None, reason='PyTorch is not installed')),
+    torch_param(bt601ycbcr_pt),
 ])
 def test_bt601ycbcr_float_precision(bt601ycbcr_impl):
     x = np.array([110, 4, 92], dtype=float).reshape(1, 1, 3)
@@ -60,7 +72,7 @@ def test_bt601ycbcr_float_precision(bt601ycbcr_impl):
 
 @pytest.mark.parametrize('bt601ycbcr_impl', [
     pytest.param(bt601ycbcr_np, id='numpy'),
-    pytest.param(bt601ycbcr_pt, id='torch', marks=pytest.mark.skipif(bt601ycbcr_pt is None, reason='PyTorch is not installed')),
+    torch_param(bt601ycbcr_pt),
 ])
 def test_bt601ycbcr_precision_divergence(bt601ycbcr_impl):
     # the rounding step changes luma and both chroma components for this input (issue #9)
@@ -76,7 +88,7 @@ def test_bt601ycbcr_precision_divergence(bt601ycbcr_impl):
 
 @pytest.mark.parametrize('bt601ycbcr_impl', [
     pytest.param(bt601ycbcr_np, id='numpy'),
-    pytest.param(bt601ycbcr_pt, id='torch', marks=pytest.mark.skipif(bt601ycbcr_pt is None, reason='PyTorch is not installed')),
+    torch_param(bt601ycbcr_pt),
 ])
 def test_bt601ycbcr_invalid_precision(bt601ycbcr_impl):
     x = np.array([110, 4, 92], dtype=float).reshape(1, 1, 3)
@@ -99,19 +111,3 @@ def test_bt601ycbcr_backends_agree(precision):
     assert np.array_equal(pt_y.numpy(), np_y)
     assert np.array_equal(pt_cb.numpy(), np_cb)
     assert np.array_equal(pt_cr.numpy(), np_cr)
-
-
-@pytest.mark.parametrize('bt601ypbpr_impl', [
-    pytest.param(bt601ypbpr_np, id='numpy'),
-    pytest.param(bt601ypbpr_pt, id='torch', marks=pytest.mark.skipif(bt601ypbpr_pt is None, reason='PyTorch is not installed')),
-])
-@pytest.mark.parametrize('precision', ['8-bit', 'float'])
-def test_bt601ypbpr_precision_is_noop(bt601ypbpr_impl, precision):
-    # YPbPr is never rounded, so the precision option is accepted but has no effect
-    x = np.array([110, 4, 92], dtype=float).reshape(1, 1, 3) / 255
-
-    default = bt601ypbpr_impl(x)
-    with_precision = bt601ypbpr_impl(x, precision=precision)
-
-    for component, default_component in zip(with_precision, default):
-        assert np.array_equal(np.asarray(component), np.asarray(default_component))

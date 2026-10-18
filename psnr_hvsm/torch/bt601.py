@@ -5,7 +5,7 @@ from typing import Tuple
 import numpy as np
 import torch
 
-PRECISIONS = ('8-bit', 'float')
+from ..numpy import validate_precision
 
 
 def bt601ycbcr(a: torch.Tensor, precision: str = '8-bit') -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
@@ -23,8 +23,7 @@ def bt601ycbcr(a: torch.Tensor, precision: str = '8-bit') -> Tuple[torch.Tensor,
 
     The semantics are identical to the NumPy implementation of this function.
     """
-    if precision not in PRECISIONS:
-        raise ValueError("precision must be one of %r, got %r" % (PRECISIONS, precision))
+    validate_precision(precision)
     if isinstance(a, np.ndarray):
         a = torch.tensor(a).moveaxis(-1, -3)
     r = a[..., 0, :, :]
@@ -44,17 +43,12 @@ def bt601ycbcr(a: torch.Tensor, precision: str = '8-bit') -> Tuple[torch.Tensor,
     return y, cb, cr
 
 
-def bt601ypbpr(a: torch.Tensor, precision: str = '8-bit') -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
+def bt601ypbpr(a: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
     """
     Convert a normalized RGB image into YPbPr (analog YCbCr).
 
     This function assumes (N,H,W,C) channel ordering.
-
-    The `precision` option is accepted for symmetry with `bt601ycbcr`; YPbPr
-    is never rounded, so it has no effect on the result.
     """
-    if precision not in PRECISIONS:
-        raise ValueError("precision must be one of %r, got %r" % (PRECISIONS, precision))
     if isinstance(a, np.ndarray):
         a = torch.tensor(a).moveaxis(-1, -3)
     r = a[..., 0, :, :]

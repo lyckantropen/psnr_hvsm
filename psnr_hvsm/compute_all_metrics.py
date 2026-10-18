@@ -5,12 +5,10 @@ import numpy as np
 
 from . import (backend, bt601ycbcr, bt601ypbpr, psnr, psnr_ha_hma,
                psnr_ha_hma_color, psnr_hvs_hvsm)
+from .numpy import validate_precision
 
 if backend == 'torch':
     import torch
-
-PRECISIONS = ('8-bit', 'float')
-
 
 def compute_all_metrics(org, dst,
                         max_value: Optional[float] = None,
@@ -24,8 +22,7 @@ def compute_all_metrics(org, dst,
     reference values; ``'float'`` keeps the unrounded result of the same
     matrix arithmetic.
     """
-    if precision not in PRECISIONS:
-        raise ValueError("precision must be one of %r, got %r" % (PRECISIONS, precision))
+    validate_precision(precision)
     if len(org.shape) > 2:
         # color processing
         if backend in ['numpy', 'cpp']:
