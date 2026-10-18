@@ -58,8 +58,13 @@ def test_cli_float_precision_json_records_float():
     assert_almost_equal(document['psnr_hvsm'], 15.966472675229104, decimal=10)
     assert_almost_equal(document['psnr_ha'], 25.96774318769922, decimal=10)
     assert_almost_equal(document['psnr_hma'], 26.467399309332656, decimal=10)
-    # plain PSNR does not depend on the BT.601 conversion
-    assert document['psnr'] == default_values['psnr']
+    # plain PSNR does not depend on the BT.601 conversion, so it must match the
+    # default run exactly. Compare against a default run of this environment
+    # rather than the literal above: plain PSNR is unaffected by the conversion
+    # but its last bits do follow the resolved NumPy version, so only two runs
+    # that share an environment can be required to agree bit for bit.
+    _, default_stdout, _ = run_cli('--json', original, distorted)
+    assert document['psnr'] == json.loads(parse_last_stdout_line(default_stdout))['psnr']
     # the flag measurably changes every BT.601-dependent metric
     for key in ('psnr_hvs', 'psnr_hvsm', 'psnr_ha', 'psnr_hma'):
         assert document[key] != default_values[key]
