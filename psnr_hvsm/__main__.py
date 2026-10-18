@@ -5,7 +5,7 @@ import argparse
 from .compute_all_metrics import backend, compute_all_metrics
 
 try:
-    from imageio import imread
+    from imageio.v2 import imread
 except ImportError as e:
     print('imageio not found. Please install psnr_hvsm with the [command_line] extra:')
     print('$> pip install psnr_hvsm[command_line]')
