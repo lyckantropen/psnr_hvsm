@@ -4,11 +4,20 @@ from numpy.testing import assert_almost_equal
 
 from psnr_hvsm.numpy import bt601ycbcr as bt601ycbcr_np
 from psnr_hvsm.numpy import bt601ypbpr as bt601ypbpr_np
-from psnr_hvsm.torch import bt601ycbcr as bt601ycbcr_pt
-from psnr_hvsm.torch import bt601ypbpr as bt601ypbpr_pt
+try:
+    from psnr_hvsm.torch import bt601ycbcr as bt601ycbcr_pt
+    from psnr_hvsm.torch import bt601ypbpr as bt601ypbpr_pt
+except ModuleNotFoundError as error:
+    if error.name != 'torch':
+        raise
+    bt601ycbcr_pt = None
+    bt601ypbpr_pt = None
 
 
-@pytest.mark.parametrize('bt601ycbcr_impl', [bt601ycbcr_np, bt601ycbcr_pt], ids=['numpy', 'torch'])
+@pytest.mark.parametrize('bt601ycbcr_impl', [
+    pytest.param(bt601ycbcr_np, id='numpy'),
+    pytest.param(bt601ycbcr_pt, id='torch', marks=pytest.mark.skipif(bt601ycbcr_pt is None, reason='PyTorch is not installed')),
+])
 def test_bt601ycbcr(bt601ycbcr_impl):
     x = np.array([110, 4, 92], dtype=float).reshape(1, 1, 3)
 
@@ -19,7 +28,10 @@ def test_bt601ycbcr(bt601ycbcr_impl):
     assert cr.item() == 168 / 255   # generated in octave
 
 
-@pytest.mark.parametrize('bt601ypbpr_impl', [bt601ypbpr_np, bt601ypbpr_pt], ids=['numpy', 'torch'])
+@pytest.mark.parametrize('bt601ypbpr_impl', [
+    pytest.param(bt601ypbpr_np, id='numpy'),
+    pytest.param(bt601ypbpr_pt, id='torch', marks=pytest.mark.skipif(bt601ypbpr_pt is None, reason='PyTorch is not installed')),
+])
 def test_bt601ypbpr(bt601ypbpr_impl):
     x = np.array([110, 4, 92], dtype=float).reshape(1, 1, 3) / 255
 
