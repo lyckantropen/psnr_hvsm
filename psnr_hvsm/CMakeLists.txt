@@ -118,6 +118,19 @@ set(PSNR_HVSM_FILES
 pybind11_add_module(_psnr_hvsm ${PSNR_HVSM_FILES})
 target_compile_features(_psnr_hvsm PRIVATE cxx_std_17)
 target_compile_definitions(_psnr_hvsm PRIVATE -D_USE_MATH_DEFINES)
+
+# The extension is compiled against NumPy 2 headers so that a single binary
+# serves NumPy 1.x and NumPy 2.x runtimes. Pin the NumPy C-API target version
+# explicitly: left to its own devices the header defaults to the API level of
+# whichever NumPy release most recently dropped Python versions, so the oldest
+# runtime the binary accepts would depend on the NumPy version the build
+# environment happened to resolve (API level 1.25 with NumPy 2.5 headers,
+# 1.23 with 2.3, 1.21 with 2.1 and 2.2, 1.19 with 2.0). 0x0000000d is NPY_1_19_API_VERSION, the
+# oldest NumPy runtime that binaries built against NumPy 2 headers are
+# documented to serve, and numerically identical to NPY_1_18_API_VERSION.
+# Written as the hex value so the define stays valid against any NumPy
+# headers, including 1.x ones that predate the NPY_1_19_API_VERSION macro.
+target_compile_definitions(_psnr_hvsm PRIVATE NPY_TARGET_VERSION=0x0000000d)
 target_include_directories(_psnr_hvsm PRIVATE ${fftw3_SOURCE_DIR}/api)
 target_link_libraries(_psnr_hvsm PRIVATE
                                 fftw3

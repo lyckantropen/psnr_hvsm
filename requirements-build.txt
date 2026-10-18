@@ -1,4 +1,4 @@
 cmake >= 3.21
 scikit-build-core
 build
-numpy >= 1.18.0
+numpy >= 2.0.0
