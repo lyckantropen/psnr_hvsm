@@ -46,6 +46,15 @@ def declared_python_minors():
     }
 
 
+def test_version_is_at_least_0_3_0():
+    # 0.3.0 is the release that lifted the Python floor to 3.10, removed the
+    # NumPy <2 cap and added the BT.601 precision option; every later release
+    # must declare a version at least as high.
+    from packaging.version import Version
+
+    assert Version(distribution_metadata()["Version"]) >= Version("0.3.0")
+
+
 def test_scipy_is_a_runtime_dependency():
     names = {requirement.name.lower() for requirement in runtime_requirements()}
     assert "scipy" in names
