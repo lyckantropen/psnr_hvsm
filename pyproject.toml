@@ -2,14 +2,15 @@
 requires = [
     "cmake>=3.21",
     "scikit-build-core",
-    "numpy >= 1.18",
-    'msvc-runtime >= 14; platform_system == "Windows"'
+    "numpy >= 2.0"
+    # msvc-runtime is deliberately absent: see the comment on the runtime
+    # dependency below.
 ]
 build-backend = "scikit_build_core.build"
 
 [project]
 name = "psnr_hvsm"
-version = "0.2.4"
+version = "0.3.0"
 authors = [{name = "Karol Trojanowski", email = "trojanowski.ifuj@gmail.com"}]
 description = "Accelerated implementations of the PSNR-HVS, PSNR-HVS-M, PSNR-HA and PSNR-HMA image metrics for NumPy and PyTorch"
 license = {text = "MIT"}
@@ -17,12 +18,12 @@ keywords = ["psnr hvs video image metric pytorch"]
 classifiers = [
     "Development Status :: 4 - Beta",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.7",
-    "Programming Language :: Python :: 3.8",
-    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Programming Language :: Python :: 3.15",
     "Programming Language :: C++",
     "Operating System :: POSIX :: Linux",
     "Operating System :: Microsoft :: Windows",
@@ -30,10 +31,16 @@ classifiers = [
     "Intended Audience :: Science/Research",
     "Topic :: Scientific/Engineering :: Image Processing",
 ]
-requires-python = ">= 3.7, <4"
+requires-python = ">= 3.10, <4"
 dependencies = [
-    "numpy >= 1.18,<2",
-    'msvc-runtime >= 14; platform_system == "Windows"',
+    "numpy >= 1.19",
+    "scipy >= 1.4",
+    # The MSVC runtime is a runtime concern only: the compiler supplies the CRT
+    # when building, and CMake ships just the FFTW DLLs in the wheel. Its wheels
+    # are tagged per CPython ABI and stop at 3.14, so the marker must exclude
+    # 3.15 - asking for it there makes the metadata uninstallable on the newest
+    # supported interpreter.
+    'msvc-runtime >= 14; platform_system == "Windows" and python_version < "3.15"',
 ]
 
 [project.readme]
@@ -46,7 +53,6 @@ Homepage = "https://github.com/lyckantropen/psnr_hvsm"
 [project.optional-dependencies]
 tests = [
     "pytest",
-    "scipy",
     "imageio",
 ]
 command_line = ["imageio", "tqdm"]

@@ -30,7 +30,7 @@ investigation._
 
 ## Installation
 
-`psnr_hvsm` supports Python 3.7-3.12. Packages are distributed on PyPi. Be sure
+`psnr_hvsm` supports Python 3.10-3.15. Packages are distributed on PyPi. Be sure
 to have an up-to-date pip to be able to install the correct packages on Linux:
 
 ```bash
@@ -46,6 +46,40 @@ With PyTorch support:
 ```bash
 pip install psnr_hvsm[torch]
 ```
+
+### NumPy and PyTorch support policy
+
+The NumPy requirement carries no upper bound. The compiled extension is built
+against NumPy 2 headers with a fixed backward-compatible ABI target, so a
+single wheel serves both NumPy 1.x and NumPy 2.x runtimes. Installing the
+package never forces a downgrade from NumPy 2.x, and its runtime floor is
+`numpy>=1.19`. Note that NumPy 1.x itself
+is only installable on Python 3.10-3.12: the last 1.x release ships wheels
+only that far, so on Python 3.13 and newer the runtime resolves NumPy 2.x.
+
+PyPI publishes PyTorch wheels for Python 3.10-3.14 only, so the `torch` extra
+is unavailable on 3.15 and the PyTorch backend cannot be installed there.
+
+### MSVC runtime on Windows
+
+Linux manylinux wheels bundle `libstdc++` via auditwheel. The Windows wheels do
+not bundle the MSVC C++ runtime: CMake installs only the FFTW DLLs into the
+wheel. On CPython 3.10-3.14 the package
+therefore declares `msvc-runtime` for Windows, which pip installs into the
+environment along with the package, so no system-wide Visual C++ runtime is
+required. The MSVC or clang toolchain supplies the CRT when the extension is
+compiled, which is why it is not a build requirement.
+
+On CPython 3.15 the requirement is not declared. `msvc-runtime` publishes its
+wheels per CPython ABI and has no cp315 wheel, so asking for it there would
+leave the newest supported interpreter uninstallable. A CPython install from
+python.org brings the C runtime it was built with (its installer updates the
+C Runtime Library on the machine when one is needed), so 3.15 works without
+anything extra. If an import nevertheless fails with a missing
+`vcruntime140.dll` or `msvcp140.dll` - a possibility with the minimal layouts
+such as the embeddable package, MSYS2 or NuGet-based installs - install the
+Microsoft Visual C++ 2015-2022 redistributable for your architecture, or use
+CPython 3.10-3.14, where the requirement is declared.
 
 ## Usage
 
@@ -109,6 +143,43 @@ print(psnr_hvs, psnr_hvsm)
 
 If you need to measure PSNR-HVS and PSNR-HVS-M on an RGB image, you need to
 convert it to an YUV colorspace and pass in only the luma component.
+
+### BT.601 conversion precision
+
+When 8-bit RGB input is converted to the BT.601 YCbCr colorspace, the luma
+and both chroma components are by default rounded to 8-bit code values. This
+quantisation matches the 8-bit YCbCr pipeline of the reference implementation
+and is what reproduces the published TID2013 reference values this library is
+cross-checked against, which is why it remains the default. Every metric
+output computed with the default is bit-identical to previous releases.
+
+If you are porting the metrics and want to compare against a non-quantised
+reference, pass `precision='float'` to compute the same BT.601 matrix
+arithmetic without the rounding step:
+
+```python
+from psnr_hvsm import bt601ycbcr
+from psnr_hvsm.compute_all_metrics import compute_all_metrics
+
+image1_y, image1_cb, image1_cr = bt601ycbcr(image1_uint8, precision='float')
+
+psnr_hvs, psnr_hvsm, psnr_ha, psnr_hma, psnr = compute_all_metrics(
+    image1_uint8, image2_uint8, precision='float')
+```
+
+The `precision` option (`'8-bit'` default, `'float'`) is accepted by
+`bt601ycbcr` in both the NumPy and PyTorch backends with identical
+semantics, and by the `compute_all_metrics` entry point, which threads it
+through every metric that depends on the quantised 8-bit BT.601 YCbCr
+conversion. It applies only when that conversion runs. For grayscale input or
+non-uint8 color input, it has no effect.
+
+On the command line the same choice is exposed as
+`--precision {8-bit,float}` on `python -m psnr_hvsm`, and the JSON output
+(`--json`) records the requested precision, so batch results are
+self-describing. The requested precision is applied wherever the quantised
+conversion runs; for grayscale or non-uint8 color input, the field has no
+effect.
 
 ### PyTorch support
 
@@ -195,8 +266,19 @@ python -m psnr_hvsm.tid2013_metrics D:\tid2013\ .\tid2013_results\
 - [xtensor](https://github.com/xtensor-stack/xtensor)
 - [xtensor-python](https://github.com/xtensor-stack/xtensor-python)
 
-FFTW3 is automatically resolved by CMake and the rest can be installed by
-creating a `conda` environment using the provided YAML file:
+FFTW3 is always fetched by CMake at the pinned release listed in
+`psnr_hvsm/CMakeLists.txt`. The remaining, header-only dependencies are
+installed at pinned, mutually compatible versions when they are not already
+installed, so a C++ compiler, a current CMake and pip or uv are enough to build
+from source:
+
+```bash
+pip install --upgrade -r requirements-build.txt
+pip wheel --no-deps -w dist .
+```
+
+If you prefer a `conda` environment, create the provided one and CMake will
+discover the dependencies from it instead of fetching them:
 
 ```bash
 conda env create -f psnr_hvsm-dev.yml
@@ -214,7 +296,16 @@ pip install --upgrade -r requirements.txt
 
 ```bash
 pip install --upgrade -r requirements-build.txt
-python setup.py bdist_wheel
+python -m build --wheel
+```
+
+### Verifying a clean source build
+
+To build from source in a scratch virtualenv that has no conda environment for
+CMake to discover and to run the test suite against the result:
+
+```bash
+./clean-build-check.sh
 ```
 
 ### Running tests on different versions of Python using tox

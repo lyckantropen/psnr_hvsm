@@ -5,22 +5,31 @@ import numpy as np
 
 from . import (backend, bt601ycbcr, bt601ypbpr, psnr, psnr_ha_hma,
                psnr_ha_hma_color, psnr_hvs_hvsm)
+from .numpy import validate_precision
 
 if backend == 'torch':
     import torch
 
-
 def compute_all_metrics(org, dst,
                         max_value: Optional[float] = None,
-                        hma_luma: bool = False) -> Tuple[float, float, float, float, float]:
-    """Compute PSNR-HVS, PSNR-HVS-M, PSNR-HA, PSNR-HMA and PSNR for a pair of two images."""
+                        hma_luma: bool = False,
+                        precision: str = '8-bit') -> Tuple[float, float, float, float, float]:
+    """Compute PSNR-HVS, PSNR-HVS-M, PSNR-HA, PSNR-HMA and PSNR for a pair of two images.
+
+    The `precision` option is passed to the BT.601 conversion of 8-bit color
+    images: ``'8-bit'`` (default) rounds the YCbCr components to 8-bit code
+    values, matching the reference implementation and the published TID2013
+    reference values; ``'float'`` keeps the unrounded result of the same
+    matrix arithmetic.
+    """
+    validate_precision(precision)
     if len(org.shape) > 2:
         # color processing
         if backend in ['numpy', 'cpp']:
             if org.dtype == np.uint8:
                 # use BT.601 YCbCr
-                xy, xcb, xcr = bt601ycbcr(org)
-                yy, ycb, ycr = bt601ycbcr(dst)
+                xy, xcb, xcr = bt601ycbcr(org, precision=precision)
+                yy, ycb, ycr = bt601ycbcr(dst, precision=precision)
                 org = org.astype(float) / 255
                 dst = dst.astype(float) / 255
             else:
@@ -34,8 +43,8 @@ def compute_all_metrics(org, dst,
         elif backend == 'torch':
             if org.dtype == torch.uint8:
                 # use BT.601 YCbCr
-                xy, xcb, xcr = bt601ycbcr(org)
-                yy, ycb, ycr = bt601ycbcr(dst)
+                xy, xcb, xcr = bt601ycbcr(org, precision=precision)
+                yy, ycb, ycr = bt601ycbcr(dst, precision=precision)
                 org = org.to(torch.float64) / 255
                 dst = dst.to(torch.float64) / 255
             else:
